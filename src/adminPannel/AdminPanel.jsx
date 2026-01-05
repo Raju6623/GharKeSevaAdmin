@@ -1,75 +1,45 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import { useDispatch, useSelector } from 'react-redux';
 import { io } from 'socket.io-client';
-import { 
-  LayoutDashboard, Users, ClipboardList, Wallet, Settings, 
+import {
+  LayoutDashboard, Users, ClipboardList, Wallet, Settings,
   TrendingUp, UserCheck, Plus, MapPin, Phone, IndianRupee, Clock, CheckCircle2
 } from 'lucide-react';
+import { fetchAdminData } from '../redux/thunks/adminThunk';
+import { updateVendorStatus } from '../redux/slices/adminSlice';
 
 const socket = io('http://localhost:3001');
 
 const AdminPanel = () => {
   const [activeTab, setActiveTab] = useState('DASHBOARD');
-  const [stats, setStats] = useState([]);
-  const [recentBookings, setRecentBookings] = useState([]);
-  const [vendors, setVendors] = useState([]); 
-  const [loading, setLoading] = useState(true);
 
-  const fetchAllData = async () => {
-    try {
-      setLoading(true);
-      const API_URL = "http://localhost:3001/api/auth";
-      const statsRes = await axios.get(`${API_URL}/admin/stats`);
-      const vendorsRes = await axios.get(`${API_URL}/admin/vendors`);
-      
-      const adminData = statsRes.data.data;
-      const allVendorsList = vendorsRes.data;
-      // Sirf online waale technicians
-      const onlineOnly = allVendorsList.filter(v => v.isOnline === true);
-
-      setStats([
-        { label: 'Total Revenue', value: adminData.totalRevenue, icon: <Wallet className="text-emerald-600"/>, color: 'bg-emerald-50' },
-        { label: 'Total Bookings', value: adminData.activeBookingsCount.toString(), icon: <ClipboardList className="text-blue-600"/>, color: 'bg-blue-50' },
-        { label: 'Online Techs', value: onlineOnly.length.toString(), icon: <UserCheck className="text-purple-600"/>, color: 'bg-purple-50' },
-        { label: 'Satisfaction', value: '4.8/5', icon: <TrendingUp className="text-orange-600"/>, color: 'bg-orange-50' },
-      ]);
-
-      setRecentBookings(adminData.recentBookingsList);
-      setVendors(allVendorsList);
-      setLoading(false);
-    } catch (error) {
-      console.error("Fetch Error:", error);
-      setLoading(false);
-    }
-  };
+  const dispatch = useDispatch();
+  const { adminData, vendors, recentBookings, loading } = useSelector((state) => state.admin);
 
   useEffect(() => {
-    fetchAllData();
+    dispatch(fetchAdminData());
 
     // --- REAL-TIME FIX: AUTO REMOVE LOGIC ---
     socket.on('vendor_status_change', (data) => {
-      setVendors((prev) => {
-        // Purani list ko update karein
-        const updatedList = prev.map((v) => 
-          v.customUserId === data.vendorId ? { ...v, isOnline: data.status } : v
-        );
-
-        // Stats card mein count ko live update karein
-        const newOnlineCount = updatedList.filter(v => v.isOnline === true).length;
-        setStats(prevStats => prevStats.map(s => 
-          s.label === 'Online Techs' ? { ...s, value: newOnlineCount.toString() } : s
-        ));
-
-        return updatedList;
-      });
+      dispatch(updateVendorStatus({ vendorId: data.vendorId, status: data.status }));
     });
 
     return () => socket.off('vendor_status_change');
-  }, []);
+  }, [dispatch]);
+
+  // Derive data for stats
+  const onlineOnly = vendors.filter(v => v.isOnline === true);
+
+  const stats = [
+    { label: 'Total Revenue', value: adminData?.totalRevenue || '0', icon: <Wallet className="text-emerald-600" />, color: 'bg-emerald-50' },
+    { label: 'Total Bookings', value: adminData?.activeBookingsCount?.toString() || '0', icon: <ClipboardList className="text-blue-600" />, color: 'bg-blue-50' },
+    { label: 'Online Techs', value: onlineOnly.length.toString(), icon: <UserCheck className="text-purple-600" />, color: 'bg-purple-50' },
+    { label: 'Satisfaction', value: '4.8/5', icon: <TrendingUp className="text-orange-600" />, color: 'bg-orange-50' },
+  ];
 
   const renderContent = () => {
-    switch(activeTab) {
+    switch (activeTab) {
       case 'DASHBOARD':
         return (
           <>
@@ -114,8 +84,8 @@ const AdminPanel = () => {
                     </div>
                   </div>
                   <div className="space-y-2 mb-6 text-slate-500 text-xs font-bold uppercase">
-                    <div className="flex items-center gap-2"><Phone size={14}/> {vendor.userPhone}</div>
-                    <div className="flex items-center gap-2"><MapPin size={14}/> ID: {vendor.customUserId}</div>
+                    <div className="flex items-center gap-2"><Phone size={14} /> {vendor.userPhone}</div>
+                    <div className="flex items-center gap-2"><MapPin size={14} /> ID: {vendor.customUserId}</div>
                   </div>
                   <button className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-600 shadow-lg">Monitor Partner</button>
                 </div>
@@ -137,7 +107,7 @@ const AdminPanel = () => {
               {recentBookings.map((job) => (
                 <div key={job._id} className="bg-white p-6 rounded-[2rem] border border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600"><Clock size={24}/></div>
+                    <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600"><Clock size={24} /></div>
                     <div>
                       <h4 className="font-black text-slate-900 uppercase text-sm">{job.packageName}</h4>
                       <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{job.customBookingId} • {job.bookingDate}</p>
@@ -159,11 +129,11 @@ const AdminPanel = () => {
             <h2 className="text-2xl font-black text-slate-900 tracking-tighter italic uppercase">Settlements</h2>
             {recentBookings.filter(b => b.bookingStatus === 'Completed').map((pay) => (
               <div key={pay._id} className="bg-white p-8 rounded-[2.5rem] border border-slate-100 flex items-center justify-between">
-                 <div className="flex items-center gap-6">
-                    <div className="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600"><IndianRupee size={28}/></div>
-                    <div><h4 className="font-black text-slate-900 uppercase">Order {pay.customBookingId}</h4></div>
-                 </div>
-                 <p className="text-xl font-black text-slate-900">₹{pay.totalPrice}</p>
+                <div className="flex items-center gap-6">
+                  <div className="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600"><IndianRupee size={28} /></div>
+                  <div><h4 className="font-black text-slate-900 uppercase">Order {pay.customBookingId}</h4></div>
+                </div>
+                <p className="text-xl font-black text-slate-900">₹{pay.totalPrice}</p>
               </div>
             ))}
           </div>
@@ -184,14 +154,14 @@ const AdminPanel = () => {
     <div className="min-h-screen bg-[#F8FAFC] flex font-sans">
       <aside className="w-72 bg-white border-r border-slate-100 p-8 hidden lg:flex flex-col sticky top-0 h-screen">
         <div className="flex items-center gap-3 mb-12 px-2">
-          <div className="p-2 bg-slate-900 rounded-xl"><ClipboardList className="text-white" size={24}/></div>
+          <div className="p-2 bg-slate-900 rounded-xl"><ClipboardList className="text-white" size={24} /></div>
           <span className="text-xl font-black tracking-tighter uppercase italic text-slate-900">GharKe<span className="text-blue-600">Seva</span></span>
         </div>
         <nav className="flex-1 space-y-4">
-          <SidebarItem name="DASHBOARD" label="Dashboard" icon={<LayoutDashboard size={20}/>} />
-          <SidebarItem name="BOOKINGS" label="Bookings" icon={<ClipboardList size={20}/>} />
-          <SidebarItem name="TECHNICIANS" label="Technicians" icon={<Users size={20}/>} />
-          <SidebarItem name="PAYMENTS" label="Payments" icon={<Wallet size={20}/>} />
+          <SidebarItem name="DASHBOARD" label="Dashboard" icon={<LayoutDashboard size={20} />} />
+          <SidebarItem name="BOOKINGS" label="Bookings" icon={<ClipboardList size={20} />} />
+          <SidebarItem name="TECHNICIANS" label="Technicians" icon={<Users size={20} />} />
+          <SidebarItem name="PAYMENTS" label="Payments" icon={<Wallet size={20} />} />
         </nav>
       </aside>
 
@@ -199,7 +169,7 @@ const AdminPanel = () => {
         <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
           <h1 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic">system {activeTab}</h1>
           <Link to="/add-service" className="flex items-center gap-2 bg-blue-600 text-white px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl hover:bg-blue-700 active:scale-95 transition-all">
-             <Plus size={16} strokeWidth={4} /> Add Service
+            <Plus size={16} strokeWidth={4} /> Add Service
           </Link>
         </header>
         {loading ? <div className="flex flex-col items-center justify-center h-96 animate-spin">Synchronizing...</div> : renderContent()}
