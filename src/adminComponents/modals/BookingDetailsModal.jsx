@@ -1,5 +1,5 @@
 import React from 'react';
-import { Trash2, ClipboardList, Users, Clock, Briefcase } from 'lucide-react';
+import { X, ClipboardList, Users, Clock, Briefcase } from 'lucide-react';
 
 const BookingDetailsModal = ({ booking, onClose }) => {
     if (!booking) return null;
@@ -8,7 +8,7 @@ const BookingDetailsModal = ({ booking, onClose }) => {
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
             <div className="bg-white w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-[2.5rem] shadow-2xl relative p-8">
                 <button onClick={onClose} className="absolute top-6 right-6 p-2 bg-slate-100 hover:bg-slate-200 rounded-full transition-colors">
-                    <Trash2 size={20} className="text-slate-500" />
+                    <X size={20} className="text-slate-500" />
                 </button>
 
                 <div className="mb-8">

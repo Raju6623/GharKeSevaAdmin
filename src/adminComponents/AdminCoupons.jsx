@@ -14,8 +14,6 @@ function AdminCoupons({ isEmbedded = false }) {
         discountValue: '',
         maxDiscount: '', // Optional for percentage
         minOrderValue: '',
-        maxDiscount: '', // Optional for percentage
-        minOrderValue: '',
         description: '',
         termsConditions: [] // New State
     });

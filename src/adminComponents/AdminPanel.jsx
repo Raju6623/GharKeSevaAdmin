@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { io } from 'socket.io-client';
+import api from '../api/axiosConfig';
 
 // Layout & Navigation
 import AdminSidebar from './layout/AdminSidebar';
@@ -99,13 +100,14 @@ function AdminPanel() {
         }
     }, [recentBookings, selectedBooking]);
 
-    const handleVerifyVendorAction = async (vendor) => {
-        const response = await dispatch(verifyVendor(vendor.customUserId));
+    const handleVerifyVendorAction = async (vendor, note, isApproved) => {
+        const payload = { vendorId: vendor.customUserId, verificationMessage: note, isVerified: isApproved };
+        const response = await dispatch(verifyVendor(payload));
         if (!response.error) {
-            alert("Vendor Verified Successfully!");
+            alert(isApproved ? "Vendor Verified Successfully!" : "Vendor Status Updated!");
             setSelectedVendor(null);
         } else {
-            alert("Verification Failed: " + response.payload);
+            alert("Action Failed: " + response.payload);
         }
     };
 
@@ -117,6 +119,31 @@ function AdminPanel() {
         { label: 'Online Techs', value: onlineVendors.length.toString(), icon: <UserCheck className="text-purple-600" />, color: 'bg-purple-50' },
         { label: 'Satisfaction', value: '4.8/5', icon: <TrendingUp className="text-orange-600" />, color: 'bg-orange-50' },
     ];
+
+
+
+    const handleDeleteVendorAction = async (vendorId) => {
+        if (!window.confirm("CRITICAL: Are you sure you want to PERMANENTLY DELETE this vendor? This cannot be undone.")) return;
+        try {
+            await api.delete(`/admin/vendor/${vendorId}`);
+            alert("Vendor Deleted Successfully");
+            setSelectedVendor(null);
+            dispatch(fetchAdminData());
+        } catch (err) {
+            alert("Delete Failed: " + (err.response?.data?.message || err.message));
+        }
+    };
+
+    const handleBlockVendorAction = async (vendorId, reason) => {
+        try {
+            await api.put(`/admin/vendor/block/${vendorId}`, { reason });
+            alert("Vendor Blocked Successfully");
+            setSelectedVendor(null);
+            dispatch(fetchAdminData());
+        } catch (err) {
+            alert("Block Failed: " + (err.response?.data?.message || err.message));
+        }
+    };
 
     return (
         <div className="min-h-screen bg-[#F8FAFC] flex font-sans">
@@ -151,8 +178,6 @@ function AdminPanel() {
                         )}
                         {activeTab === 'COUPONS' && <AdminCoupons />}
                         {activeTab === 'VENDOR_OFFERS' && <VendorOffersTab />}
-                        {activeTab === 'COUPONS' && <AdminCoupons />}
-                        {activeTab === 'VENDOR_OFFERS' && <VendorOffersTab />}
                         {activeTab === 'INCENTIVES' && <AdminIncentives />}
                         {activeTab === 'BANNERS' && <BannerManager />}
                         {activeTab === 'ADDONS' && <AddonManager />}
@@ -164,6 +189,8 @@ function AdminPanel() {
                         vendor={selectedVendor}
                         onClose={() => setSelectedVendor(null)}
                         onVerify={handleVerifyVendorAction}
+                        onDelete={handleDeleteVendorAction}
+                        onBlock={handleBlockVendorAction}
                     />
                 )}
 

@@ -186,8 +186,15 @@ function AdminAddService() {
         setLoading(true);
         setMessage({ type: '', text: '' });
 
-        let finalCategory = serviceAction;
         let finalName = formData.packageName;
+
+        // AUTO-PREFIX GENDER FOR SALON (Strict Isolation)
+        if (mainCategory === 'Salon' || mainCategory === 'salon') {
+            const genderPrefix = subType.toLowerCase().includes('women') ? 'Women' : 'Men';
+            if (!finalName.toLowerCase().includes(genderPrefix.toLowerCase())) {
+                finalName = `${genderPrefix} ${finalName}`;
+            }
+        }
 
         if (subType && !finalName.toLowerCase().includes(subType.toLowerCase())) {
             finalName = `${subType} ${finalName}`;

@@ -36,11 +36,16 @@ export const updateAdminService = createAsyncThunk(
 
 export const verifyVendor = createAsyncThunk(
   'admin/verifyVendor',
-  async (vendorId, { dispatch, rejectWithValue }) => {
+  async (payload, { dispatch, rejectWithValue }) => {
     try {
-      await api.put(`/admin/update-vendor/${vendorId}`, { isVerified: true });
+      const { vendorId, ...updateData } = payload;
+      // If payload is just an ID string (legacy support), treat it as verification only
+      const id = typeof payload === 'string' ? payload : vendorId;
+      const data = typeof payload === 'string' ? { isVerified: true } : updateData;
+
+      await api.put(`/admin/update-vendor/${id}`, data);
       dispatch(fetchAdminData()); // Refresh data after verification
-      return vendorId;
+      return id;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Verification Failed');
     }
@@ -68,6 +73,17 @@ export const addAdminBanner = createAsyncThunk('admin/addBanner', async (formDat
   }
 });
 
+export const updateAdminBanner = createAsyncThunk('admin/updateBanner', async ({ id, formData }, { rejectWithValue }) => {
+  try {
+    const response = await api.put(`/admin/banners/${id}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    return response.data;
+  } catch (error) {
+    return rejectWithValue(error.response?.data?.message || 'Failed to update banner');
+  }
+});
+
 export const deleteAdminBanner = createAsyncThunk('admin/deleteBanner', async (id, { rejectWithValue }) => {
   try {
     await api.delete(`/admin/banners/${id}`);
@@ -87,12 +103,25 @@ export const fetchAdminAddons = createAsyncThunk('admin/fetchAddons', async (_, 
   }
 });
 
-export const addAdminAddon = createAsyncThunk('admin/addAddon', async (data, { rejectWithValue }) => {
+export const addAdminAddon = createAsyncThunk('admin/addAddon', async (formData, { rejectWithValue }) => {
   try {
-    const response = await api.post('/admin/addons/add', data);
+    const response = await api.post('/admin/addons/add', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
     return response.data;
   } catch (error) {
     return rejectWithValue(error.response?.data?.message || 'Failed to add addon');
+  }
+});
+
+export const updateAdminAddon = createAsyncThunk('admin/updateAddon', async ({ id, formData }, { rejectWithValue }) => {
+  try {
+    const response = await api.put(`/admin/addons/${id}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    return response.data;
+  } catch (error) {
+    return rejectWithValue(error.response?.data?.message || 'Failed to update addon');
   }
 });
 

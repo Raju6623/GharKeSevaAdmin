@@ -1,16 +1,39 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Trash2, Plus, Image as ImageIcon, Link as LinkIcon } from 'lucide-react';
-import { addAdminBanner, deleteAdminBanner } from '../../redux/thunks/adminThunk';
+import { Trash2, Plus, Image as ImageIcon, Link as LinkIcon, Pencil, X } from 'lucide-react';
+import { addAdminBanner, updateAdminBanner, deleteAdminBanner } from '../../redux/thunks/adminThunk';
 
 const BannerManager = () => {
     const dispatch = useDispatch();
     const { banners } = useSelector((state) => state.admin);
     const [isAdding, setIsAdding] = useState(false);
+    const [editingId, setEditingId] = useState(null);
     const [formData, setFormData] = useState({
         title: '', subtitle: '', link: '', tag: 'OFFER', cta: 'Book Now', image: null
     });
     const [preview, setPreview] = useState(null);
+
+    const resetForm = () => {
+        setIsAdding(false);
+        setEditingId(null);
+        setFormData({ title: '', subtitle: '', link: '', tag: 'OFFER', cta: 'Book Now', image: null });
+        setPreview(null);
+    };
+
+    const handleEdit = (banner) => {
+        setIsAdding(true);
+        setEditingId(banner._id);
+        setFormData({
+            title: banner.title,
+            subtitle: banner.subtitle,
+            link: banner.link,
+            tag: banner.tag,
+            cta: banner.cta,
+            image: null
+        });
+        setPreview(banner.image?.startsWith('http') ? banner.image : `http://localhost:3001/${banner.image}`);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
@@ -23,14 +46,20 @@ const BannerManager = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         const data = new FormData();
-        Object.keys(formData).forEach(key => data.append(key, formData[key]));
+        Object.keys(formData).forEach(key => {
+            if (formData[key] !== null) data.append(key, formData[key]);
+        });
 
-        const res = await dispatch(addAdminBanner(data));
+        let res;
+        if (editingId) {
+            res = await dispatch(updateAdminBanner({ id: editingId, formData: data }));
+        } else {
+            res = await dispatch(addAdminBanner(data));
+        }
+
         if (!res.error) {
-            alert('Banner Added Successfully');
-            setIsAdding(false);
-            setFormData({ title: '', subtitle: '', link: '', tag: 'OFFER', cta: 'Book Now', image: null });
-            setPreview(null);
+            alert(editingId ? 'Banner Updated Successfully' : 'Banner Added Successfully');
+            resetForm();
         } else {
             alert('Failed: ' + res.payload);
         }
@@ -41,10 +70,10 @@ const BannerManager = () => {
             <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-black text-slate-900 tracking-tighter italic uppercase">Site Banners</h2>
                 <button
-                    onClick={() => setIsAdding(!isAdding)}
-                    className="bg-slate-900 text-white px-6 py-2 rounded-full font-bold text-xs hover:bg-slate-800 transition flex items-center gap-2"
+                    onClick={() => isAdding ? resetForm() : setIsAdding(true)}
+                    className={`${isAdding ? 'bg-red-500 hover:bg-red-600' : 'bg-slate-900 hover:bg-slate-800'} text-white px-6 py-2 rounded-full font-bold text-xs transition flex items-center gap-2`}
                 >
-                    <Plus size={16} /> {isAdding ? 'Cancel' : 'Add New Banner'}
+                    {isAdding ? <><X size={16} /> Cancel</> : <><Plus size={16} /> Add New Banner</>}
                 </button>
             </div>
 
@@ -57,11 +86,13 @@ const BannerManager = () => {
                         <input type="text" placeholder="Tag (e.g., LIMITED)" required className="border p-2 rounded-lg" value={formData.tag} onChange={e => setFormData({ ...formData, tag: e.target.value })} />
                         <input type="text" placeholder="CTA Text" required className="border p-2 rounded-lg" value={formData.cta} onChange={e => setFormData({ ...formData, cta: e.target.value })} />
                         <div className="border p-2 rounded-lg flex items-center gap-2">
-                            <input type="file" accept="image/*" onChange={handleFileChange} required />
+                            <input type="file" accept="image/*" onChange={handleFileChange} required={!editingId} />
                             {preview && <img src={preview} alt="Preview" className="h-8 w-8 object-cover rounded" />}
                         </div>
                     </div>
-                    <button type="submit" className="bg-blue-600 text-white px-8 py-2 rounded-lg font-bold hover:bg-blue-700 w-full md:w-auto">Publish Banner</button>
+                    <button type="submit" className="bg-blue-600 text-white px-8 py-2 rounded-lg font-bold hover:bg-blue-700 w-full md:w-auto">
+                        {editingId ? 'Update Banner' : 'Publish Banner'}
+                    </button>
                 </form>
             )}
 
@@ -82,14 +113,22 @@ const BannerManager = () => {
                                 <span className="uppercase">{banner.cta}</span>
                             </div>
                         </div>
-                        <button
-                            onClick={() => {
-                                if (window.confirm('Delete this banner?')) dispatch(deleteAdminBanner(banner._id));
-                            }}
-                            className="absolute top-2 right-2 bg-white/90 p-2 rounded-full text-red-500 hover:bg-red-500 hover:text-white transition shadow-sm opacity-0 group-hover:opacity-100"
-                        >
-                            <Trash2 size={16} />
-                        </button>
+                        <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button
+                                onClick={() => handleEdit(banner)}
+                                className="bg-white/90 p-2 rounded-full text-blue-500 hover:bg-blue-500 hover:text-white transition shadow-sm"
+                            >
+                                <Pencil size={16} />
+                            </button>
+                            <button
+                                onClick={() => {
+                                    if (window.confirm('Delete this banner?')) dispatch(deleteAdminBanner(banner._id));
+                                }}
+                                className="bg-white/90 p-2 rounded-full text-red-500 hover:bg-red-500 hover:text-white transition shadow-sm"
+                            >
+                                <Trash2 size={16} />
+                            </button>
+                        </div>
                     </div>
                 ))}
             </div>
