@@ -174,7 +174,12 @@ function AdminPanel() {
             />
 
             <main className="flex-1 p-4 md:p-8 lg:p-10 overflow-y-auto relative min-w-0">
-                <AdminHeader activeTab={activeTab} setIsSidebarOpen={setIsSidebarOpen} />
+                <AdminHeader
+                    activeTab={activeTab}
+                    setIsSidebarOpen={setIsSidebarOpen}
+                    vendors={vendors}
+                    recentBookings={recentBookings}
+                />
 
                 {loading ? (
                     <div className="flex flex-col items-center justify-center h-[60vh]">
