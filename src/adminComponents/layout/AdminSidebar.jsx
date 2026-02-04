@@ -1,6 +1,6 @@
 import React from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { LayoutDashboard, Tag, ClipboardList, Users, Wallet, X as CloseIcon, Ticket, Percent, Trophy } from 'lucide-react';
+import { LayoutDashboard, Tag, ClipboardList, Users, Wallet, X as CloseIcon, Ticket, Percent, Trophy, LayoutGrid } from 'lucide-react';
 
 const SidebarItem = ({ name, icon, label, activeTab, setActiveTab, setIsSidebarOpen }) => (
     <button
@@ -26,6 +26,7 @@ const AdminSidebar = ({ activeTab, setActiveTab, isSidebarOpen, setIsSidebarOpen
         { name: 'INCENTIVES', label: 'Milestones/Rewards', icon: <Trophy size={20} /> },
         { name: 'BANNERS', label: 'Site Banners', icon: <Tag size={20} /> },
         { name: 'ADDONS', label: 'Service Addons', icon: <ClipboardList size={20} /> },
+        { name: 'CATEGORIES', label: 'Home Categories', icon: <LayoutGrid size={20} /> },
     ];
 
     return (

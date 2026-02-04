@@ -14,6 +14,7 @@ import ServicePricingSection from './tabs/addService/ServicePricingSection';
 import ServiceMarketingSection from './tabs/addService/ServiceMarketingSection';
 import InclusionsManager from './tabs/addService/InclusionsManager';
 import ServiceImageUpload from './tabs/addService/ServiceImageUpload';
+import ServiceDetailsManager from './tabs/addService/ServiceDetailsManager';
 import AdminCoupons from './AdminCoupons';
 import VendorOffersTab from './tabs/VendorOffersTab';
 
@@ -58,12 +59,19 @@ function AdminAddService() {
         tag: '', originalPrice: ''
     });
 
+    // Detailed States
+    const [variants, setVariants] = useState([]);
+    const [trustContent, setTrustContent] = useState({ title: '', points: [] });
+    const [tipsContent, setTipsContent] = useState({ title: '', points: [] });
+
     const [pkgIncName, setPkgIncName] = useState('');
     const [pkgIncDetail, setPkgIncDetail] = useState('');
     const [packageInclusions, setPackageInclusions] = useState([]);
     const [inclusionInput, setInclusionInput] = useState('');
     const [inclusions, setInclusions] = useState([]);
     const [imageFile, setImageFile] = useState(null);
+    const [trustImageFile, setTrustImageFile] = useState(null);
+    const [tipsImageFile, setTipsImageFile] = useState(null);
     const [previewUrl, setPreviewUrl] = useState(null);
     const [perUnitRate, setPerUnitRate] = useState('');
     const [loading, setLoading] = useState(false);
@@ -89,6 +97,10 @@ function AdminAddService() {
         });
         setInclusions(service.inclusions || []);
         setPackageInclusions(service.includedServices || []);
+        setVariants(service.variants || []);
+        setTrustContent(service.trustContent || { title: '', points: [] });
+        setTipsContent(service.aftercareTips || { title: '', points: [] });
+
         setIsPackage(service.isPackage || false);
         setServiceType(service.isPackage ? 'package' : 'service');
         if (service.perUnitCost) {
@@ -156,7 +168,8 @@ function AdminAddService() {
             tag: '', originalPrice: ''
         });
         setPerUnitRate(''); setInclusions([]); setPackageInclusions([]);
-        setImageFile(null); setPreviewUrl(null);
+        setVariants([]); setTrustContent({ title: '', points: [] }); setTipsContent({ title: '', points: [] });
+        setImageFile(null); setTrustImageFile(null); setTipsImageFile(null); setPreviewUrl(null);
     };
 
     const handleChange = (e) => {
@@ -199,6 +212,7 @@ function AdminAddService() {
         if (subType && !finalName.toLowerCase().includes(subType.toLowerCase())) {
             finalName = `${subType} ${finalName}`;
         }
+        let finalCategory = subType || mainCategory;
         if (mainCategory === 'Appliances') {
             finalCategory = subType;
         }
@@ -218,6 +232,11 @@ function AdminAddService() {
         data.append('reviewCount', formData.reviewCount);
         data.append('tag', formData.tag);
 
+        // Append Detailed Fields
+        data.append('variants', JSON.stringify(variants));
+        data.append('trustContent', JSON.stringify(trustContent));
+        data.append('aftercareTips', JSON.stringify(tipsContent));
+
         if (isPackage) {
             data.append('includedServices', JSON.stringify(packageInclusions));
         } else {
@@ -230,6 +249,8 @@ function AdminAddService() {
         }
 
         if (imageFile) data.append('packageImage', imageFile);
+        if (trustImageFile) data.append('trustImage', trustImageFile);
+        if (tipsImageFile) data.append('tipsImage', tipsImageFile);
 
         try {
             const url = isEditing
@@ -249,11 +270,10 @@ function AdminAddService() {
                 setMessage({ type: 'success', text: isEditing ? 'Service Updated!' : `Service Created! ID: ${res.data.serviceId}` });
                 if (!isEditing) {
                     setFormData({
-                        packageName: '', priceAmount: '', estimatedTime: '', description: '',
-                        note: '', optionsCount: '', discount: '', rating: '', reviewCount: '',
                         tag: '', originalPrice: ''
                     });
                     setPerUnitRate(''); setInclusions([]); setPackageInclusions([]);
+                    setVariants([]); setTrustContent({ title: '', points: [] }); setTipsContent({ title: '', points: [] });
                     setImageFile(null); setPreviewUrl(null);
                 } else {
                     setIsEditing(false);
@@ -326,7 +346,30 @@ function AdminAddService() {
                                 <input required name="estimatedTime" value={formData.estimatedTime} onChange={handleChange} placeholder="e.g. 45-60 mins" className="input-field font-bold" />
                             </div>
 
-                            <ServiceMarketingSection formData={formData} handleChange={handleChange} />
+                            <div>
+                                <label className="label-text">Service Badge / Tag (e.g. SALE, 10 MIN, NEW)</label>
+                                <div className="flex gap-3 items-center">
+                                    <input
+                                        name="tag"
+                                        value={formData.tag}
+                                        onChange={handleChange}
+                                        placeholder="e.g. NEW"
+                                        className="input-field flex-1"
+                                    />
+                                    <div className="flex gap-2">
+                                        {['NEW', 'SALE', 'BESTSELLER', '10 MIN'].map(quickTag => (
+                                            <button
+                                                key={quickTag}
+                                                type="button"
+                                                onClick={() => setFormData({ ...formData, tag: quickTag })}
+                                                className="px-3 py-2 bg-slate-100 hover:bg-indigo-100 text-[10px] font-black rounded-xl transition-colors"
+                                            >
+                                                {quickTag}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
 
                             <InclusionsManager
                                 {...{
@@ -350,6 +393,16 @@ function AdminAddService() {
                             />
 
                             <ServiceImageUpload previewUrl={previewUrl} handleFileChange={handleFileChange} />
+
+                            <ServiceDetailsManager
+                                variants={variants} setVariants={setVariants}
+                                trustContent={trustContent} setTrustContent={setTrustContent}
+                                tipsContent={tipsContent} setTipsContent={setTipsContent}
+                                trustImageFile={trustImageFile}
+                                setTrustImageFile={setTrustImageFile}
+                                tipsImageFile={tipsImageFile}
+                                setTipsImageFile={setTipsImageFile}
+                            />
 
                             {message.text && (
                                 <div className={`p-4 rounded-2xl flex items-center gap-3 ${message.type === 'success' ? 'bg-green-50 text-green-700 border border-green-100' : 'bg-red-50 text-red-700 border border-red-100'}`}>

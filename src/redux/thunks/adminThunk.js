@@ -133,3 +133,40 @@ export const deleteAdminAddon = createAsyncThunk('admin/deleteAddon', async (id,
     return rejectWithValue(error.response?.data?.message || 'Failed to delete addon');
   }
 });
+
+// --- CATEGORIES ---
+export const fetchAdminCategories = createAsyncThunk('admin/fetchCategories', async (_, { rejectWithValue }) => {
+  try {
+    const response = await api.get('/categories');
+    return response.data;
+  } catch (error) {
+    return rejectWithValue(error.response?.data?.message || 'Failed to fetch categories');
+  }
+});
+
+export const addAdminCategory = createAsyncThunk('admin/addCategory', async (data, { rejectWithValue }) => {
+  try {
+    const response = await api.post('/admin/categories/add', data);
+    return response.data.data;
+  } catch (error) {
+    return rejectWithValue(error.response?.data?.message || 'Failed to add category');
+  }
+});
+
+export const updateAdminCategory = createAsyncThunk('admin/updateCategory', async ({ id, data }, { rejectWithValue }) => {
+  try {
+    const response = await api.put(`/admin/categories/${id}`, data);
+    return response.data.data;
+  } catch (error) {
+    return rejectWithValue(error.response?.data?.message || 'Failed to update category');
+  }
+});
+
+export const deleteAdminCategory = createAsyncThunk('admin/deleteCategory', async (id, { rejectWithValue }) => {
+  try {
+    await api.delete(`/admin/categories/${id}`);
+    return id;
+  } catch (error) {
+    return rejectWithValue(error.response?.data?.message || 'Failed to delete category');
+  }
+});

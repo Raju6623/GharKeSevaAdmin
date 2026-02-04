@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Upload, CheckCircle } from 'lucide-react';
+import ServiceDetailsManager from '../tabs/addService/ServiceDetailsManager';
 
 const EditServiceModal = ({ service, onClose, onUpdate }) => {
     const [formData, setFormData] = useState({
@@ -18,6 +19,13 @@ const EditServiceModal = ({ service, onClose, onUpdate }) => {
     const [preview, setPreview] = useState(null);
     const [imageFile, setImageFile] = useState(null);
     const [loading, setLoading] = useState(false);
+
+    // Detailed States
+    const [variants, setVariants] = useState([]);
+    const [trustContent, setTrustContent] = useState({ title: '', points: [], image: '' });
+    const [tipsContent, setTipsContent] = useState({ title: '', points: [] });
+    const [trustImageFile, setTrustImageFile] = useState(null);
+    const [tipsImageFile, setTipsImageFile] = useState(null);
 
     useEffect(() => {
         if (service) {
@@ -40,6 +48,11 @@ const EditServiceModal = ({ service, onClose, onUpdate }) => {
                     ? service.packageImage
                     : `http://localhost:3001/${service.packageImage}`);
             }
+
+            // Load Detailed Content
+            setVariants(service.variants || []);
+            setTrustContent(service.trustContent || { title: '', points: [], image: '' });
+            setTipsContent(service.aftercareTips || { title: '', points: [] });
         }
     }, [service]);
 
@@ -66,6 +79,17 @@ const EditServiceModal = ({ service, onClose, onUpdate }) => {
         if (imageFile) {
             data.append('packageImage', imageFile);
         }
+        if (trustImageFile) {
+            data.append('trustImage', trustImageFile);
+        }
+        if (tipsImageFile) {
+            data.append('tipsImage', tipsImageFile);
+        }
+
+        // Add Detailed Content
+        data.append('variants', JSON.stringify(variants));
+        data.append('trustContent', JSON.stringify(trustContent));
+        data.append('aftercareTips', JSON.stringify(tipsContent));
 
         await onUpdate(service._id, data, formData.category || service.serviceCategory);
         setLoading(false);
@@ -204,6 +228,19 @@ const EditServiceModal = ({ service, onClose, onUpdate }) => {
                                 className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold text-slate-700"
                             />
                         </div>
+                    </div>
+
+                    {/* Detailed Content Manager */}
+                    <div className="border-t border-slate-100 pt-6">
+                        <ServiceDetailsManager
+                            variants={variants} setVariants={setVariants}
+                            trustContent={trustContent} setTrustContent={setTrustContent}
+                            tipsContent={tipsContent} setTipsContent={setTipsContent}
+                            trustImageFile={trustImageFile}
+                            setTrustImageFile={setTrustImageFile}
+                            tipsImageFile={tipsImageFile}
+                            setTipsImageFile={setTipsImageFile}
+                        />
                     </div>
 
                     <div className="pt-4 flex justify-end gap-3">

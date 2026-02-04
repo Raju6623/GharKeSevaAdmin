@@ -18,13 +18,14 @@ import VendorOffersTab from './tabs/VendorOffersTab';
 import AdminIncentives from './AdminIncentives';
 import BannerManager from './tabs/BannerManager'; // New
 import AddonManager from './tabs/AddonManager'; // New
+import CategoryManager from './tabs/CategoryManager';
 
 // Modals
 import VendorDetailsModal from './modals/VendorDetailsModal';
 import BookingDetailsModal from './modals/BookingDetailsModal';
 
 // Redux Actions
-import { fetchAdminData, verifyVendor, updateAdminService, fetchAdminBanners, fetchAdminAddons, deleteAdminBanner, deleteAdminAddon } from '../redux/thunks/adminThunk';
+import { fetchAdminData, verifyVendor, updateAdminService, fetchAdminBanners, fetchAdminAddons, deleteAdminBanner, deleteAdminAddon, fetchAdminCategories } from '../redux/thunks/adminThunk';
 import { updateVendorStatus, fetchAdminServices, deleteAdminService } from '../redux/slices/adminSlice';
 
 // Icons for Stats
@@ -56,6 +57,9 @@ function AdminPanel() {
         }
         if (activeTab === 'ADDONS') {
             dispatch(fetchAdminAddons());
+        }
+        if (activeTab === 'CATEGORIES') {
+            dispatch(fetchAdminCategories());
         }
     }, [dispatch, activeTab, selectedServiceCategory]);
 
@@ -145,6 +149,17 @@ function AdminPanel() {
         }
     };
 
+    const handleUnblockVendorAction = async (vendorId) => {
+        try {
+            await api.put(`/admin/vendor/unblock/${vendorId}`);
+            alert("Vendor Unblocked Successfully");
+            setSelectedVendor(null);
+            dispatch(fetchAdminData());
+        } catch (err) {
+            alert("Unblock Failed: " + (err.response?.data?.message || err.message));
+        }
+    };
+
     return (
         <div className="min-h-screen bg-[#F8FAFC] flex font-sans">
             <AdminSidebar
@@ -181,6 +196,7 @@ function AdminPanel() {
                         {activeTab === 'INCENTIVES' && <AdminIncentives />}
                         {activeTab === 'BANNERS' && <BannerManager />}
                         {activeTab === 'ADDONS' && <AddonManager />}
+                        {activeTab === 'CATEGORIES' && <CategoryManager />}
                     </div>
                 )}
 
@@ -191,6 +207,7 @@ function AdminPanel() {
                         onVerify={handleVerifyVendorAction}
                         onDelete={handleDeleteVendorAction}
                         onBlock={handleBlockVendorAction}
+                        onUnblock={handleUnblockVendorAction}
                     />
                 )}
 

@@ -2,7 +2,8 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import {
     fetchAdminData, updateAdminService,
     fetchAdminBanners, addAdminBanner, updateAdminBanner, deleteAdminBanner,
-    fetchAdminAddons, addAdminAddon, updateAdminAddon, deleteAdminAddon
+    fetchAdminAddons, addAdminAddon, updateAdminAddon, deleteAdminAddon,
+    fetchAdminCategories, addAdminCategory, updateAdminCategory, deleteAdminCategory
 } from '../thunks/adminThunk';
 import axios from 'axios';
 
@@ -45,6 +46,7 @@ const initialState = {
     services: [],
     banners: [],
     addons: [],
+    categories: [],
     loading: false,
     error: null,
 };
@@ -160,6 +162,26 @@ const adminSlice = createSlice({
                         state.addons[idx] = action.payload;
                     }
                 }
+            })
+            // --- CATEGORIES ---
+            .addCase(fetchAdminCategories.fulfilled, (state, action) => {
+                state.categories = action.payload;
+            })
+            .addCase(addAdminCategory.fulfilled, (state, action) => {
+                if (action.payload) {
+                    state.categories.push(action.payload);
+                }
+            })
+            .addCase(updateAdminCategory.fulfilled, (state, action) => {
+                if (action.payload) {
+                    const idx = state.categories.findIndex(c => c._id === action.payload._id);
+                    if (idx !== -1) {
+                        state.categories[idx] = action.payload;
+                    }
+                }
+            })
+            .addCase(deleteAdminCategory.fulfilled, (state, action) => {
+                state.categories = state.categories.filter(c => c._id !== action.payload);
             });
     },
 });

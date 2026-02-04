@@ -1,7 +1,7 @@
 import React from 'react';
-import { X as CloseIcon, CheckCircle2, MapPin, Wallet } from 'lucide-react';
+import { X as CloseIcon, CheckCircle2, MapPin, Wallet, X } from 'lucide-react';
 
-const VendorDetailsModal = ({ vendor, onClose, onVerify, onDelete, onBlock }) => {
+const VendorDetailsModal = ({ vendor, onClose, onVerify, onDelete, onBlock, onUnblock }) => {
     // Initialize with existing message if present
     const [adminNote, setAdminNote] = React.useState(vendor?.verificationMessage || '');
 
@@ -21,10 +21,15 @@ const VendorDetailsModal = ({ vendor, onClose, onVerify, onDelete, onBlock }) =>
                     <div>
                         <div className="flex items-center gap-3 mb-2">
                             <h2 className="text-3xl font-black text-slate-900 leading-none">{vendor.firstName} {vendor.lastName}</h2>
-                            {vendor.isVerified ?
-                                <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1"><CheckCircle2 size={12} /> Verified</span> :
+                            {vendor.isBlocked ? (
+                                <span className="bg-red-100 text-red-700 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1">
+                                    <X size={12} /> Permanently Blocked
+                                </span>
+                            ) : vendor.isVerified ? (
+                                <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1"><CheckCircle2 size={12} /> Verified</span>
+                            ) : (
                                 <span className="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">Pending</span>
-                            }
+                            )}
                         </div>
                         <p className="text-blue-600 font-bold uppercase text-xs tracking-wider mb-4">{vendor.vendorCategory} • {vendor.experience || 0} Years Exp.</p>
 
@@ -149,11 +154,19 @@ const VendorDetailsModal = ({ vendor, onClose, onVerify, onDelete, onBlock }) =>
 
                 {/* Security / Danger Zone */}
                 <div className="flex flex-col sm:flex-row gap-4 mt-6 pt-6 border-t border-slate-100">
-                    <button
-                        onClick={() => onBlock(vendor.customUserId, adminNote || "Security Concern")}
-                        className="w-full sm:flex-1 py-4 rounded-2xl bg-amber-500 text-white font-black text-xs uppercase tracking-widest hover:bg-amber-600 transition-colors shadow-lg shadow-amber-100">
-                        Block Vendor
-                    </button>
+                    {vendor.isBlocked ? (
+                        <button
+                            onClick={() => onUnblock(vendor.customUserId)}
+                            className="w-full sm:flex-1 py-4 rounded-2xl bg-emerald-500 text-white font-black text-xs uppercase tracking-widest hover:bg-emerald-600 transition-colors shadow-lg shadow-emerald-100">
+                            Unblock Vendor
+                        </button>
+                    ) : (
+                        <button
+                            onClick={() => onBlock(vendor.customUserId, adminNote || "Security Concern")}
+                            className="w-full sm:flex-1 py-4 rounded-2xl bg-amber-500 text-white font-black text-xs uppercase tracking-widest hover:bg-amber-600 transition-colors shadow-lg shadow-amber-100">
+                            Block Vendor
+                        </button>
+                    )}
                     <button
                         onClick={() => onDelete(vendor.customUserId)}
                         className="w-full sm:flex-1 py-4 rounded-2xl bg-red-500 text-white font-black text-xs uppercase tracking-widest hover:bg-red-600 transition-colors shadow-lg shadow-red-100">
