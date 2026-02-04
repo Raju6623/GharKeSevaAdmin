@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Menu, Plus, Search, Bell, User, X, ExternalLink, Calendar, CheckCircle2 } from 'lucide-react';
 
-const AdminHeader = ({ activeTab, setIsSidebarOpen, vendors = [], recentBookings = [] }) => {
+const AdminHeader = ({ activeTab, setIsSidebarOpen, vendors = [], recentBookings = [], onSelectVendor, onSelectBooking }) => {
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
@@ -25,16 +25,36 @@ const AdminHeader = ({ activeTab, setIsSidebarOpen, vendors = [], recentBookings
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
+    const handleResultClick = (res) => {
+        setIsSearchOpen(false);
+        setSearchQuery('');
+        if (res.type === 'Vendor' && onSelectVendor) {
+            onSelectVendor(res.raw);
+        } else if (res.type === 'Booking' && onSelectBooking) {
+            onSelectBooking(res.raw);
+        }
+    };
+
+    const handleNotificationClick = (item) => {
+        setIsNotificationsOpen(false);
+        if (item.type === 'vendor' && onSelectVendor) {
+            onSelectVendor(item.raw);
+        } else if (item.type === 'booking' && onSelectBooking) {
+            onSelectBooking(item.raw);
+        }
+    };
+
     // Filtered search results
     const searchResults = searchQuery.length > 2 ? [
         ...vendors.filter(v =>
             v.vendorName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
             v.customUserId?.toLowerCase().includes(searchQuery.toLowerCase())
-        ).map(v => ({ id: v.customUserId, title: v.vendorName, type: 'Vendor', icon: <User size={14} /> })),
+        ).map(v => ({ id: v.customUserId, title: v.vendorName, type: 'Vendor', icon: <User size={14} />, raw: v })),
         ...recentBookings.filter(b =>
             b.customBookingId?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            b.serviceTitle?.toLowerCase().includes(searchQuery.toLowerCase())
-        ).map(b => ({ id: b.customBookingId, title: b.serviceTitle, type: 'Booking', icon: <Calendar size={14} /> }))
+            b.serviceTitle?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            b.customerName?.toLowerCase().includes(searchQuery.toLowerCase())
+        ).map(b => ({ id: b.customBookingId, title: b.serviceTitle, type: 'Booking', icon: <Calendar size={14} />, raw: b }))
     ].slice(0, 5) : [];
 
     // Notification items (Recent 5 events)
@@ -44,14 +64,16 @@ const AdminHeader = ({ activeTab, setIsSidebarOpen, vendors = [], recentBookings
             title: 'New Vendor Registration',
             desc: `${v.vendorName} is waiting for approval.`,
             type: 'vendor',
-            time: 'Just now'
+            time: 'Just now',
+            raw: v
         })),
         ...recentBookings.filter(b => b.bookingStatus === 'Pending').map(b => ({
             id: b._id,
             title: 'New Booking Received',
             desc: `Order for ${b.serviceTitle} is pending assignment.`,
             type: 'booking',
-            time: 'Recently'
+            time: 'Recently',
+            raw: b
         }))
     ].slice(0, 5);
 
@@ -106,6 +128,7 @@ const AdminHeader = ({ activeTab, setIsSidebarOpen, vendors = [], recentBookings
                                         {searchResults.map((res, i) => (
                                             <button
                                                 key={i}
+                                                onClick={() => handleResultClick(res)}
                                                 className="w-full flex items-center justify-between p-3 hover:bg-slate-50 rounded-xl transition-all group border border-transparent hover:border-slate-100"
                                             >
                                                 <div className="flex items-center gap-3">
@@ -153,6 +176,7 @@ const AdminHeader = ({ activeTab, setIsSidebarOpen, vendors = [], recentBookings
                                             notificationItems.map((item, i) => (
                                                 <button
                                                     key={i}
+                                                    onClick={() => handleNotificationClick(item)}
                                                     className="w-full p-4 flex gap-3 hover:bg-slate-50 transition-all border-b border-slate-50 last:border-0"
                                                 >
                                                     <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${item.type === 'vendor' ? 'bg-blue-50 text-blue-500' : 'bg-orange-50 text-orange-500'}`}>

@@ -179,6 +179,14 @@ function AdminPanel() {
                     setIsSidebarOpen={setIsSidebarOpen}
                     vendors={vendors}
                     recentBookings={recentBookings}
+                    onSelectVendor={(v) => {
+                        setActiveTab(v.isVerified ? 'TECHNICIANS' : 'NEW_VENDORS');
+                        setSelectedVendor(v);
+                    }}
+                    onSelectBooking={(b) => {
+                        setActiveTab('BOOKINGS');
+                        setSelectedBooking(b);
+                    }}
                 />
 
                 {loading ? (
