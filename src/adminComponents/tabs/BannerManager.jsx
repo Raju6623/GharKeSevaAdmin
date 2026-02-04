@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Trash2, Plus, Image as ImageIcon, Link as LinkIcon, Pencil, X } from 'lucide-react';
 import { addAdminBanner, updateAdminBanner, deleteAdminBanner } from '../../redux/thunks/adminThunk';
+import { getImageUrl } from '../../config';
 
 const BannerManager = () => {
     const dispatch = useDispatch();
@@ -31,7 +32,7 @@ const BannerManager = () => {
             cta: banner.cta,
             image: null
         });
-        setPreview(banner.image?.startsWith('http') ? banner.image : `http://localhost:3001/${banner.image}`);
+        setPreview(getImageUrl(banner.image));
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
@@ -100,7 +101,7 @@ const BannerManager = () => {
                 {banners && banners.map((banner) => (
                     <div key={banner._id} className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm group relative">
                         <img
-                            src={banner.image?.startsWith('http') ? banner.image : `http://localhost:3001/${banner.image}`}
+                            src={getImageUrl(banner.image)}
                             alt={banner.title}
                             className="w-full h-40 object-cover"
                         />

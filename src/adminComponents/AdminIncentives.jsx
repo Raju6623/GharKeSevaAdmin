@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Trophy, Plus, Clock, Target, Calendar, Trash2, Loader2 } from 'lucide-react';
+import { API_URL } from '../config';
 
 function AdminIncentives() {
     const [incentives, setIncentives] = useState([]);
@@ -19,7 +20,7 @@ function AdminIncentives() {
     const fetchIncentives = async () => {
         setListLoading(true);
         try {
-            const res = await axios.get('http://localhost:3001/api/auth/admin/incentives/all');
+            const res = await axios.get(`${API_URL}/admin/incentives/all`);
             setIncentives(res.data);
         } catch (error) {
             console.error("Fetch Incentives Error:", error);
@@ -35,7 +36,7 @@ function AdminIncentives() {
     const handleDelete = async (id) => {
         if (!window.confirm("Are you sure?")) return;
         try {
-            await axios.delete(`http://localhost:3001/api/auth/admin/incentives/${id}`);
+            await axios.delete(`${API_URL}/admin/incentives/${id}`);
             setIncentives(incentives.filter(i => i._id !== id));
         } catch (error) {
             alert("Delete Failed");
@@ -45,7 +46,7 @@ function AdminIncentives() {
     const handleDeleteAll = async () => {
         if (!window.confirm("CRITICAL: Delete ALL incentives? This cannot be undone.")) return;
         try {
-            await axios.delete('http://localhost:3001/api/auth/admin/incentives/all');
+            await axios.delete(`${API_URL}/admin/incentives/all`);
             setIncentives([]);
             alert("All incentives deleted.");
         } catch (error) {
@@ -57,7 +58,7 @@ function AdminIncentives() {
         e.preventDefault();
         setLoading(true);
         try {
-            await axios.post('http://localhost:3001/api/auth/admin/incentives/add', formData);
+            await axios.post(`${API_URL}/admin/incentives/add`, formData);
             alert("Incentive Created Successfully!");
             setFormData({
                 title: '', description: '', targetCount: '', rewardAmount: '', validFrom: '', validUntil: '', applicableCategory: 'ALL'

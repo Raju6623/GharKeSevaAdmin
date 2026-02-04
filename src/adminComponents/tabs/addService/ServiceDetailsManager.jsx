@@ -1,5 +1,6 @@
 import React from 'react';
 import { Plus, X, Star, ShieldCheck, Lightbulb } from 'lucide-react';
+import { API_URL, BASE_URL } from '../../../config';
 
 const ServiceDetailsManager = ({
     variants, setVariants,
@@ -13,7 +14,7 @@ const ServiceDetailsManager = ({
     const getPreview = (file, existingUrl) => {
         if (file) return URL.createObjectURL(file);
         if (existingUrl) {
-            return existingUrl.startsWith('http') ? existingUrl : `http://localhost:3001/${existingUrl}`;
+            return existingUrl.startsWith('http') ? existingUrl : `${BASE_URL}/${existingUrl}`;
         }
         return null;
     };

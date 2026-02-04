@@ -3,8 +3,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 import { CheckCircle2, AlertCircle, Loader2, Tag, Layers, Star, Trash2, Edit2, X } from 'lucide-react';
 import { io } from 'socket.io-client';
+import { API_URL, BASE_URL } from '../config';
 
-const socket = io('http://localhost:3001');
+const socket = io(BASE_URL);
 import { fetchAdminServices } from '../redux/slices/adminSlice';
 
 // Sub-components
@@ -107,7 +108,7 @@ function AdminAddService() {
             const match = service.perUnitCost.match(/₹(\d+)/);
             if (match) setPerUnitRate(match[1]);
         }
-        setPreviewUrl(service.packageImage?.startsWith('http') ? service.packageImage : `http://localhost:3001/${service.packageImage}`);
+        setPreviewUrl(service.packageImage?.startsWith('http') ? service.packageImage : `${BASE_URL}/${service.packageImage}`);
 
         // Sync Main Category and Action/Sub-Type for UI selectors
         if (service.category) setMainCategory(service.category);
@@ -135,7 +136,7 @@ function AdminAddService() {
     const handleDelete = async (serviceId, category) => {
         if (!window.confirm('Are you sure you want to delete this service?')) return;
         try {
-            const res = await axios.delete(`http://localhost:3001/api/auth/admin/services/${serviceId}?category=${category}`);
+            const res = await axios.delete(`${API_URL}/admin/services/${serviceId}?category=${category}`);
             if (res.data.success) {
                 setMessage({ type: 'success', text: 'Service deleted successfully!' });
                 dispatch(fetchAdminServices(subType || mainCategory));
@@ -149,7 +150,7 @@ function AdminAddService() {
         const category = subType || mainCategory;
         if (!window.confirm(`⚠️ DANGER: Are you sure you want to delete ALL services in ${category}? This action is irreversible.`)) return;
         try {
-            const res = await axios.delete(`http://localhost:3001/api/auth/admin/services/all?category=${category}`);
+            const res = await axios.delete(`${API_URL}/admin/services/all?category=${category}`);
             if (res.data.success) {
                 setMessage({ type: 'success', text: `All ${category} services deleted!` });
                 dispatch(fetchAdminServices(category));
@@ -474,7 +475,7 @@ function AdminAddService() {
                                     <div key={s._id} className="flex gap-4 p-3 hover:bg-slate-50 rounded-2xl transition group border border-transparent hover:border-slate-100 cursor-default">
                                         <div className="w-16 h-16 bg-slate-100 rounded-xl overflow-hidden shrink-0">
                                             <img
-                                                src={s.packageImage?.startsWith('http') ? s.packageImage : `http://localhost:3001/${s.packageImage}`}
+                                                src={s.packageImage?.startsWith('http') ? s.packageImage : `${BASE_URL}/${s.packageImage}`}
                                                 alt=""
                                                 className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition duration-500"
                                             />

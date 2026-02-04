@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Upload, CheckCircle } from 'lucide-react';
 import ServiceDetailsManager from '../tabs/addService/ServiceDetailsManager';
+import { getImageUrl } from '../../config';
 
 const EditServiceModal = ({ service, onClose, onUpdate }) => {
     const [formData, setFormData] = useState({
@@ -44,9 +45,7 @@ const EditServiceModal = ({ service, onClose, onUpdate }) => {
             });
 
             if (service.packageImage) {
-                setPreview(service.packageImage.startsWith('http')
-                    ? service.packageImage
-                    : `http://localhost:3001/${service.packageImage}`);
+                setPreview(getImageUrl(service.packageImage));
             }
 
             // Load Detailed Content

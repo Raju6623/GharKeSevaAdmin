@@ -6,13 +6,14 @@ import {
     fetchAdminCategories, addAdminCategory, updateAdminCategory, deleteAdminCategory
 } from '../thunks/adminThunk';
 import axios from 'axios';
+import { API_URL } from '../config';
 
 // Async Thunk to Fetch All Services (Admin View)
 export const fetchAdminServices = createAsyncThunk('admin/fetchServices', async (category = 'All Services', { rejectWithValue }) => {
     try {
         const url = category === 'All Services'
-            ? 'http://localhost:3001/api/auth/services'
-            : `http://localhost:3001/api/auth/services?category=${encodeURIComponent(category)}`;
+            ? `${API_URL}/services`
+            : `${API_URL}/services?category=${encodeURIComponent(category)}`;
         const response = await axios.get(url);
         return response.data;
     } catch (error) {
@@ -28,8 +29,8 @@ export const deleteAdminService = createAsyncThunk('admin/deleteService', async 
 
         // Pass category if available for backend optimization
         const url = category
-            ? `http://localhost:3001/api/auth/admin/services/${serviceId}?category=${encodeURIComponent(category)}`
-            : `http://localhost:3001/api/auth/admin/services/${serviceId}`;
+            ? `${API_URL}/admin/services/${serviceId}?category=${encodeURIComponent(category)}`
+            : `${API_URL}/admin/services/${serviceId}`;
 
         await axios.delete(url);
         return serviceId;

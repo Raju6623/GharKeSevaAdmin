@@ -30,8 +30,9 @@ import { updateVendorStatus, fetchAdminServices, deleteAdminService } from '../r
 
 // Icons for Stats
 import { Wallet, ClipboardList, UserCheck, TrendingUp } from 'lucide-react';
+import { BASE_URL } from '../config';
 
-const socket = io('http://localhost:3001');
+const socket = io(BASE_URL);
 
 function AdminPanel() {
     const [activeTab, setActiveTab] = useState('DASHBOARD');

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Ticket, Trash2, Plus, Loader2, X } from 'lucide-react';
+import { API_URL } from '../config';
 
 function AdminCoupons({ isEmbedded = false }) {
     const [coupons, setCoupons] = useState([]);
@@ -21,7 +22,7 @@ function AdminCoupons({ isEmbedded = false }) {
 
     const fetchCoupons = () => {
         setLoading(true);
-        axios.get('http://localhost:3001/api/auth/coupons')
+        axios.get(`${API_URL}/coupons`)
             .then(res => setCoupons(res.data))
             .catch(err => console.error(err))
             .finally(() => setLoading(false));
@@ -34,7 +35,7 @@ function AdminCoupons({ isEmbedded = false }) {
     const handleDelete = async (id) => {
         if (!window.confirm("Are you sure you want to delete this coupon?")) return;
         try {
-            await axios.delete(`http://localhost:3001/api/auth/admin/coupons/${id}`);
+            await axios.delete(`${API_URL}/admin/coupons/${id}`);
             setCoupons(coupons.filter(c => c._id !== id));
         } catch (error) {
             alert("Failed to delete coupon");
@@ -44,7 +45,7 @@ function AdminCoupons({ isEmbedded = false }) {
     const handleDeleteAll = async () => {
         if (!window.confirm("Delete ALL platform coupons?")) return;
         try {
-            await axios.delete('http://localhost:3001/api/auth/admin/coupons/all');
+            await axios.delete(`${API_URL}/admin/coupons/all`);
             setCoupons([]);
             alert("All coupons deleted.");
         } catch (error) {
@@ -66,7 +67,7 @@ function AdminCoupons({ isEmbedded = false }) {
         };
 
         try {
-            const res = await axios.post('http://localhost:3001/api/auth/admin/coupons/add', payload);
+            const res = await axios.post(`${API_URL}/admin/coupons/add`, payload);
             if (res.data.success) {
                 setCoupons([res.data.data, ...coupons]);
                 setFormData({

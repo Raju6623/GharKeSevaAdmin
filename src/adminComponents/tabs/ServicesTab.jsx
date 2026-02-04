@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Trash2, Star, Tag, Pencil } from 'lucide-react';
 import EditServiceModal from '../modals/EditServiceModal';
+import { getImageUrl } from '../../config';
 
 const ServicesTab = ({ services, selectedCategory, onCategoryChange, onDeleteService, onUpdateService }) => {
     const [editingService, setEditingService] = useState(null);
@@ -48,7 +49,7 @@ const ServicesTab = ({ services, selectedCategory, onCategoryChange, onDeleteSer
 
                         <div className="aspect-video bg-gray-50 rounded-xl mb-4 overflow-hidden relative">
                             <img
-                                src={service.packageImage?.startsWith('http') ? service.packageImage : `http://localhost:3001/${service.packageImage}`}
+                                src={getImageUrl(service.packageImage)}
                                 alt={service.packageName}
                                 className="w-full h-full object-cover"
                             />

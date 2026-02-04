@@ -3,22 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Plus, Edit2, Trash2, MoveUp, MoveDown, LayoutGrid, X, Check } from 'lucide-react';
 import { fetchAdminCategories, addAdminCategory, updateAdminCategory, deleteAdminCategory } from '../../redux/thunks/adminThunk';
-
-const BASE_URL = "http://127.0.0.1:3001";
-const FRONTEND_URL = window.location.origin; // Dynamically gets current port (e.g., 5174 or 5173)
-
-const getImageUrl = (path) => {
-    if (!path) return null;
-    if (path.startsWith('http') || path.startsWith('data:')) return path;
-
-    // If it's a 3D icon from the public folder, use frontend URL
-    if (path.startsWith('/3d-icons/') || path.includes('3d-icons')) {
-        return `${FRONTEND_URL}${path.startsWith('/') ? '' : '/'}${path}`;
-    }
-
-    // Default to backend for other uploads
-    return `${BASE_URL}${path.startsWith('/') ? '' : '/'}${path}`;
-};
+import { getImageUrl } from '../../config';
 
 const CategoryManager = () => {
     const dispatch = useDispatch();

@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Trash2, Plus, Package, Pencil, X, Image as ImageIcon } from 'lucide-react';
 import { addAdminAddon, updateAdminAddon, deleteAdminAddon } from '../../redux/thunks/adminThunk';
+import { getImageUrl } from '../../config';
 
 function AddonManager() {
     const dispatch = useDispatch();
@@ -32,7 +33,7 @@ function AddonManager() {
             image: null
         });
         if (addon.image) {
-            setPreview(addon.image.startsWith('http') ? addon.image : `http://localhost:3001/${addon.image}`);
+            setPreview(getImageUrl(addon.image));
         } else {
             setPreview(null);
         }
@@ -139,7 +140,7 @@ function AddonManager() {
                             <div className="shrink-0 w-16 h-16 rounded-xl overflow-hidden bg-slate-50 border border-slate-100 flex items-center justify-center">
                                 {addon.image ? (
                                     <img
-                                        src={addon.image.startsWith('http') ? addon.image : `http://localhost:3001/${addon.image}`}
+                                        src={getImageUrl(addon.image)}
                                         alt={addon.name}
                                         className="w-full h-full object-cover"
                                         onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex' }}

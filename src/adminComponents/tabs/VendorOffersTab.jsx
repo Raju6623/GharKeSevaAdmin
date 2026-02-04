@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Tag, Trash2, Plus, Loader2, Image as ImageIcon, Percent, Users } from 'lucide-react';
+import { API_URL, getImageUrl } from '../../config';
 
 const VendorOffersTab = () => {
     const [offers, setOffers] = useState([]);
@@ -27,7 +28,7 @@ const VendorOffersTab = () => {
     const fetchOffers = async () => {
         setLoading(true);
         try {
-            const res = await axios.get('http://localhost:3001/api/auth/coupons/all/public');
+            const res = await axios.get(`${API_URL}/coupons/all/public`);
             setOffers(res.data);
         } catch (error) {
             console.error(error);
@@ -43,7 +44,7 @@ const VendorOffersTab = () => {
     const handleDelete = async (id) => {
         if (!window.confirm("Are you sure?")) return;
         try {
-            await axios.delete(`http://localhost:3001/api/auth/vendor/coupons/${id}`);
+            await axios.delete(`${API_URL}/vendor/coupons/${id}`);
             setOffers(offers.filter(o => o._id !== id));
         } catch (error) {
             alert("Delete Failed");
@@ -53,7 +54,7 @@ const VendorOffersTab = () => {
     const handleDeleteAll = async () => {
         if (!window.confirm("CRITICAL: This will delete ALL vendor offers from the system. This cannot be undone. Are you absolutely sure?")) return;
         try {
-            await axios.delete(`http://localhost:3001/api/auth/vendor/coupons/all`);
+            await axios.delete(`${API_URL}/vendor/coupons/all`);
             setOffers([]);
             alert("All offers deleted successfully.");
         } catch (error) {
@@ -73,7 +74,7 @@ const VendorOffersTab = () => {
         });
 
         try {
-            await axios.post('http://localhost:3001/api/auth/vendor/coupons/add', data);
+            await axios.post(`${API_URL}/vendor/coupons/add`, data);
             fetchOffers();
             setFormData({ code: '', description: '', discountValue: '', validFrom: '', validUntil: '', category: '', vendorId: '', offerImage: null });
         } catch (error) {
