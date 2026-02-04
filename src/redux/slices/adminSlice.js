@@ -6,7 +6,7 @@ import {
     fetchAdminCategories, addAdminCategory, updateAdminCategory, deleteAdminCategory
 } from '../thunks/adminThunk';
 import axios from 'axios';
-import { API_URL } from '../config';
+import { API_URL } from '../../config';
 
 // Async Thunk to Fetch All Services (Admin View)
 export const fetchAdminServices = createAsyncThunk('admin/fetchServices', async (category = 'All Services', { rejectWithValue }) => {
