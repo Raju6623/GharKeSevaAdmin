@@ -117,15 +117,17 @@ function AdminPanel() {
     };
 
     const onlineVendors = vendors.filter(v => v.isOnline === true);
+    const notifications = {
+        newVendors: vendors.filter(v => !v.isVerified).length,
+        newBookings: recentBookings.filter(b => b.bookingStatus === 'Pending').length
+    };
 
     const systemStats = [
-        { label: 'Total Revenue', value: adminData?.totalRevenue || '0', icon: <Wallet className="text-emerald-600" />, color: 'bg-emerald-50' },
-        { label: 'Total Bookings', value: adminData?.activeBookingsCount?.toString() || '0', icon: <ClipboardList className="text-blue-600" />, color: 'bg-blue-50' },
-        { label: 'Online Techs', value: onlineVendors.length.toString(), icon: <UserCheck className="text-purple-600" />, color: 'bg-purple-50' },
-        { label: 'Satisfaction', value: '4.8/5', icon: <TrendingUp className="text-orange-600" />, color: 'bg-orange-50' },
+        { label: 'Total Revenue', value: adminData?.totalRevenue || '0', icon: <Wallet className="text-primary" />, color: 'bg-primary/5' },
+        { label: 'Total Bookings', value: adminData?.activeBookingsCount?.toString() || '0', icon: <ClipboardList className="text-blue-500" />, color: 'bg-blue-50' },
+        { label: 'Online Techs', value: onlineVendors.length.toString(), icon: <UserCheck className="text-indigo-500" />, color: 'bg-indigo-50' },
+        { label: 'Satisfaction', value: '4.8/5', icon: <TrendingUp className="text-orange-500" />, color: 'bg-orange-50' },
     ];
-
-
 
     const handleDeleteVendorAction = async (vendorId) => {
         if (!window.confirm("CRITICAL: Are you sure you want to PERMANENTLY DELETE this vendor? This cannot be undone.")) return;
@@ -168,19 +170,36 @@ function AdminPanel() {
                 setActiveTab={setActiveTab}
                 isSidebarOpen={isSidebarOpen}
                 setIsSidebarOpen={setIsSidebarOpen}
+                notifications={notifications}
             />
 
-            <main className="flex-1 p-4 md:p-10 lg:p-12 overflow-y-auto relative min-w-0">
+            <main className="flex-1 p-4 md:p-8 lg:p-10 overflow-y-auto relative min-w-0">
                 <AdminHeader activeTab={activeTab} setIsSidebarOpen={setIsSidebarOpen} />
 
                 {loading ? (
-                    <div className="flex flex-col items-center justify-center h-96 animate-pulse text-slate-400 font-black uppercase tracking-widest">
-                        Synchronizing System...
+                    <div className="flex flex-col items-center justify-center h-[60vh]">
+                        <div className="w-12 h-12 border-4 border-slate-200 border-t-primary rounded-full animate-spin mb-4"></div>
+                        <p className="text-slate-400 font-medium tracking-wide">Synchronizing System...</p>
                     </div>
                 ) : (
                     <div className="max-w-7xl mx-auto">
                         {activeTab === 'DASHBOARD' && <DashboardTab stats={systemStats} />}
-                        {activeTab === 'TECHNICIANS' && <TechniciansTab vendors={vendors} setSelectedVendor={setSelectedVendor} />}
+                        {activeTab === 'NEW_VENDORS' && (
+                            <TechniciansTab
+                                vendors={vendors.filter(v => !v.isVerified)}
+                                setSelectedVendor={setSelectedVendor}
+                                title="New Approvals"
+                                subTitle="Pending verification requests from new service partners."
+                            />
+                        )}
+                        {activeTab === 'TECHNICIANS' && (
+                            <TechniciansTab
+                                vendors={vendors.filter(v => v.isVerified)}
+                                setSelectedVendor={setSelectedVendor}
+                                title="Registered Partners"
+                                subTitle="Listing of all verified and active service professionals."
+                            />
+                        )}
                         {activeTab === 'BOOKINGS' && <BookingsTab recentBookings={recentBookings} setSelectedBooking={setSelectedBooking} />}
                         {activeTab === 'PAYMENTS' && <PaymentsTab recentBookings={recentBookings} />}
                         {activeTab === 'SERVICES' && (

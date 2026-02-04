@@ -416,9 +416,9 @@ function AdminAddService() {
                                 <button
                                     type="submit"
                                     disabled={loading}
-                                    className={`flex-1 ${isEditing ? 'bg-amber-500 hover:bg-amber-600' : 'bg-indigo-600 hover:bg-indigo-700'} text-white font-black py-4 rounded-2xl shadow-lg transition-all flex justify-center items-center gap-2 active:scale-95 disabled:bg-slate-300 uppercase italic`}
+                                    className={`flex-1 ${isEditing ? 'bg-amber-500 hover:bg-amber-600' : 'bg-primary hover:bg-primary-dark'} text-white font-bold py-4 rounded-2xl shadow-lg shadow-primary/20 transition-all flex justify-center items-center gap-2 active:scale-95 disabled:bg-slate-300 uppercase tracking-wider`}
                                 >
-                                    {loading ? <Loader2 className="animate-spin" /> : (isEditing ? 'Update Service' : (isPackage ? 'Create Package' : 'Create Service'))}
+                                    {loading ? <Loader2 className="animate-spin text-white" /> : (isEditing ? 'Update Service' : (isPackage ? 'Create Package' : 'Create Service'))}
                                 </button>
 
                                 {isEditing && (
@@ -437,10 +437,10 @@ function AdminAddService() {
 
                 {/* Sidebar Column: Existing Services */}
                 <div className="lg:col-span-4 space-y-6 sticky top-12">
-                    <div className="bg-white rounded-[2rem] p-6 border border-slate-100 shadow-xl overflow-hidden">
+                    <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-xl overflow-hidden">
                         <div className="flex items-center justify-between mb-6">
                             <div>
-                                <h3 className="text-lg font-black text-slate-900 leading-none">Existing Data</h3>
+                                <h3 className="text-lg font-bold text-secondary leading-none tracking-tight">Existing Data</h3>
                                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">In {subType || mainCategory}</p>
                             </div>
                             <div className="flex items-center gap-2">
@@ -453,7 +453,7 @@ function AdminAddService() {
                                         <Trash2 size={16} />
                                     </button>
                                 )}
-                                <Layers size={20} className="text-indigo-600" />
+                                <Layers size={20} className="text-primary" />
                             </div>
                         </div>
 
@@ -473,60 +473,65 @@ function AdminAddService() {
                             ) : services && services.length > 0 ? (
                                 services.map((s) => (
                                     <div key={s._id} className="flex gap-4 p-3 hover:bg-slate-50 rounded-2xl transition group border border-transparent hover:border-slate-100 cursor-default">
-                                        <div className="w-16 h-16 bg-slate-100 rounded-xl overflow-hidden shrink-0">
+                                        <div className="w-16 h-16 bg-white border border-slate-100 rounded-xl overflow-hidden shrink-0 shadow-sm">
                                             <img
                                                 src={s.packageImage?.startsWith('http') ? s.packageImage : `${BASE_URL}/${s.packageImage}`}
                                                 alt=""
-                                                className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition duration-500"
+                                                className="w-full h-full object-cover transition duration-500 group-hover:scale-110"
                                             />
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <h4 className="font-bold text-slate-800 text-sm truncate leading-tight">{s.packageName}</h4>
-                                            <div className="flex items-center gap-2 mt-1">
-                                                <span className="text-xs font-black text-indigo-600">₹{s.priceAmount}</span>
-                                                <div className="flex items-center text-[10px] text-slate-400 font-bold">
-                                                    <Star size={10} className="text-yellow-400 fill-yellow-400 mr-0.5" />
-                                                    {s.rating || '4.8'}
+                                            <h4 className="font-bold text-secondary text-sm truncate leading-tight mb-1">{s.packageName}</h4>
+                                            <div className="flex items-center justify-between">
+                                                <span className="text-sm font-bold text-primary">₹{s.priceAmount}</span>
+                                                <div className="flex items-center gap-1">
                                                     <button
                                                         onClick={() => handleEdit(s)}
-                                                        className="p-1.5 hover:bg-blue-100 text-blue-600 rounded-lg transition-colors bg-blue-50"
+                                                        className="p-1.5 hover:bg-primary/10 text-primary rounded-lg transition-colors bg-primary/5"
                                                     >
-                                                        <Edit2 size={14} />
+                                                        <Edit2 size={13} />
                                                     </button>
                                                     <button
                                                         onClick={() => handleDelete(s._id, s.serviceCategory)}
-                                                        className="p-1.5 hover:bg-red-100 text-red-600 rounded-lg transition-colors bg-red-50"
+                                                        className="p-1.5 hover:bg-red-100 text-red-500 rounded-lg transition-colors bg-red-50"
                                                     >
-                                                        <Trash2 size={14} />
+                                                        <Trash2 size={13} />
                                                     </button>
                                                 </div>
                                             </div>
-                                            <p className="text-[9px] font-bold text-slate-400 uppercase mt-1 truncate">{s.serviceCategory}</p>
+                                            <div className="flex items-center gap-2 mt-1">
+                                                <div className="flex items-center text-[9px] text-slate-400 font-bold">
+                                                    <Star size={9} className="text-yellow-400 fill-yellow-400 mr-0.5" />
+                                                    {s.rating || '4.8'}
+                                                </div>
+                                                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider bg-slate-50 px-1.5 py-0.5 rounded">{s.serviceCategory}</span>
+                                            </div>
                                         </div>
                                     </div>
                                 ))
                             ) : (
                                 <div className="py-12 text-center">
                                     <Tag size={32} className="mx-auto text-slate-200 mb-2" />
-                                    <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest leading-loose">No services in this<br />category yet</p>
+                                    <p className="text-[10px] font-bold text-slate-300 uppercase tracking-widest leading-loose">No services in this<br />category yet</p>
                                 </div>
                             )}
                         </div>
                     </div>
 
                     {/* Tip Card */}
-                    <div className="bg-gradient-to-br from-indigo-600 to-violet-700 p-6 rounded-[2rem] text-white shadow-lg shadow-indigo-100">
-                        <h4 className="font-black italic uppercase text-xs tracking-widest mb-2">Pro Tip</h4>
-                        <p className="text-[11px] font-medium leading-relaxed opacity-90">
+                    <div className="bg-secondary p-6 rounded-3xl text-white shadow-xl shadow-secondary/10 relative overflow-hidden group">
+                        <div className="absolute -right-4 -bottom-4 w-20 h-20 bg-primary/20 rounded-full blur-2xl group-hover:bg-primary/40 transition-all"></div>
+                        <h4 className="font-bold uppercase text-[10px] tracking-widest mb-2 text-primary">Pro Tip</h4>
+                        <p className="text-[11px] font-medium leading-relaxed text-slate-300">
                             Check existing services to ensure naming consistency and competitive pricing. Duplicate services might confuse customers.
                         </p>
                     </div>
                 </div>
 
                 <style>{`
-                    .label-text { display: block; font-size: 10px; font-weight: 900; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem; }
-                    .input-field { width: 100%; padding: 0.75rem 1.25rem; border-radius: 1rem; background-color: #f8fafc; border: none; outline: none; transition: all 0.2s; color: #334155; font-weight: 600; }
-                    .input-field:focus { box-shadow: 0 0 0 2px #4f46e5; background-color: white; }
+                    .label-text { display: block; font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem; }
+                    .input-field { width: 100%; padding: 0.75rem 1.25rem; border-radius: 1rem; background-color: #f8fafc; border: 1px solid #eef2f6; outline: none; transition: all 0.2s; color: #1a1c21; font-weight: 500; font-size: 0.875rem; }
+                    .input-field:focus { border-color: #0c8182; background-color: white; box-shadow: 0 0 0 4px rgba(12, 129, 130, 0.1); }
                     .custom-scrollbar::-webkit-scrollbar { width: 4px; }
                     .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
                     .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }

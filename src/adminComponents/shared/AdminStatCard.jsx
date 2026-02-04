@@ -1,10 +1,19 @@
 import React from 'react';
 
 const AdminStatCard = ({ label, value, icon, colorClass }) => (
-    <div className="bg-white p-8 rounded-[2.5rem] border border-slate-50 shadow-sm hover:translate-y-[-5px] transition-all duration-300">
-        <div className={`p-4 ${colorClass} rounded-2xl w-fit mb-6`}>{icon}</div>
-        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">{label}</p>
-        <h3 className="text-3xl font-black text-slate-900 tracking-tighter">{value}</h3>
+    <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300 group">
+        <div className="flex items-center justify-between mb-4">
+            <div className={`p-3 ${colorClass} rounded-xl transition-transform duration-300 group-hover:scale-110`}>
+                {icon}
+            </div>
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-slate-50 px-2 py-1 rounded-md">
+                +12%
+            </span>
+        </div>
+        <div>
+            <p className="text-xs font-semibold text-slate-500 mb-1">{label}</p>
+            <h3 className="text-2xl font-bold text-secondary tracking-tight">{value}</h3>
+        </div>
     </div>
 );
 
