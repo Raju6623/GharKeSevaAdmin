@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import {
     LayoutDashboard, Tag, ClipboardList, Users, Wallet,
     X as CloseIcon, Ticket, Percent, Trophy, LayoutGrid,
-    LogOut, Settings, Bell, UserCheck
+    LogOut, Settings, Bell, UserCheck, Users2, Crown
 } from 'lucide-react';
 
 const SidebarItem = ({ name, icon, label, activeTab, setActiveTab, setIsSidebarOpen, count }) => {
@@ -42,19 +42,28 @@ const SidebarItem = ({ name, icon, label, activeTab, setActiveTab, setIsSidebarO
 };
 
 const AdminSidebar = ({ activeTab, setActiveTab, isSidebarOpen, setIsSidebarOpen, notifications = {} }) => {
-    const navItems = [
+    const coreItems = [
         { name: 'DASHBOARD', label: 'Dashboard', icon: <LayoutDashboard /> },
         { name: 'NEW_VENDORS', label: 'New Approvals', icon: <UserCheck />, count: notifications.newVendors },
         { name: 'TECHNICIANS', label: 'Registered Partners', icon: <Users /> },
-        { name: 'SERVICES', label: 'Services', icon: <Tag /> },
         { name: 'BOOKINGS', label: 'Bookings', icon: <ClipboardList />, count: notifications.newBookings },
         { name: 'PAYMENTS', label: 'Payments', icon: <Wallet /> },
-        { name: 'COUPONS', label: 'Public Coupons', icon: <Ticket /> },
-        { name: 'VENDOR_OFFERS', label: 'Vendor Offers', icon: <Percent /> },
-        { name: 'INCENTIVES', label: 'Milestones/Rewards', icon: <Trophy /> },
-        { name: 'BANNERS', label: 'Site Banners', icon: <Tag /> },
-        { name: 'ADDONS', label: 'Service Addons', icon: <ClipboardList /> },
+    ];
+
+    const ecosystemItems = [
+        { name: 'MEMBERSHIP', label: 'Elite Membership', icon: <Crown /> },
+        { name: 'REWARDS', label: 'Refer & Earn', icon: <Trophy /> },
+        { name: 'INCENTIVES', label: 'Loyalty Milestones', icon: <Ticket /> },
+        { name: 'COUPONS', label: 'Public Coupons', icon: <Percent /> },
+    ];
+
+    const contentItems = [
+        { name: 'SERVICES', label: 'Service Catalog', icon: <Tag /> },
         { name: 'CATEGORIES', label: 'Home Categories', icon: <LayoutGrid /> },
+        { name: 'BANNERS', label: 'Site Banners', icon: <LayoutDashboard /> },
+        { name: 'ADDONS', label: 'Service Addons', icon: <Plus /> },
+        { name: 'COMMUNITY', label: 'GS Community', icon: <Users2 /> },
+        { name: 'VENDOR_OFFERS', label: 'Vendor Offers', icon: <Tag /> },
     ];
 
     const sidebarContent = (isMobile = false) => (
@@ -77,17 +86,51 @@ const AdminSidebar = ({ activeTab, setActiveTab, isSidebarOpen, setIsSidebarOpen
             </div>
 
             {/* Nav Items */}
-            <div className="flex-1 space-y-1 overflow-y-auto no-scrollbar py-2">
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4 px-4 font-outfit">Menu</p>
-                {navItems.map((item) => (
-                    <SidebarItem
-                        key={item.name}
-                        {...item}
-                        activeTab={activeTab}
-                        setActiveTab={setActiveTab}
-                        setIsSidebarOpen={isMobile ? setIsSidebarOpen : null}
-                    />
-                ))}
+            <div className="flex-1 space-y-6 overflow-y-auto no-scrollbar py-2">
+                <div>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-3 px-4 font-outfit">Core Operations</p>
+                    <div className="space-y-1">
+                        {coreItems.map((item) => (
+                            <SidebarItem
+                                key={item.name}
+                                {...item}
+                                activeTab={activeTab}
+                                setActiveTab={setActiveTab}
+                                setIsSidebarOpen={isMobile ? setIsSidebarOpen : null}
+                            />
+                        ))}
+                    </div>
+                </div>
+
+                <div>
+                    <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em] mb-3 px-4 font-outfit">Ecosystem & Growth</p>
+                    <div className="space-y-1">
+                        {ecosystemItems.map((item) => (
+                            <SidebarItem
+                                key={item.name}
+                                {...item}
+                                activeTab={activeTab}
+                                setActiveTab={setActiveTab}
+                                setIsSidebarOpen={isMobile ? setIsSidebarOpen : null}
+                            />
+                        ))}
+                    </div>
+                </div>
+
+                <div>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-3 px-4 font-outfit">Content & Assets</p>
+                    <div className="space-y-1">
+                        {contentItems.map((item) => (
+                            <SidebarItem
+                                key={item.name}
+                                {...item}
+                                activeTab={activeTab}
+                                setActiveTab={setActiveTab}
+                                setIsSidebarOpen={isMobile ? setIsSidebarOpen : null}
+                            />
+                        ))}
+                    </div>
+                </div>
             </div>
 
             {/* Footer Actions */}

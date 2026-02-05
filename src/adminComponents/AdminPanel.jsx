@@ -19,6 +19,9 @@ import AdminIncentives from './AdminIncentives';
 import BannerManager from './tabs/BannerManager'; // New
 import AddonManager from './tabs/AddonManager'; // New
 import CategoryManager from './tabs/CategoryManager';
+import CommunityManager from './tabs/CommunityManager';
+import RewardsTab from './tabs/RewardsTab';
+import MembershipTab from './tabs/MembershipTab';
 
 // Modals
 import VendorDetailsModal from './modals/VendorDetailsModal';
@@ -196,7 +199,7 @@ function AdminPanel() {
                     </div>
                 ) : (
                     <div className="max-w-7xl mx-auto">
-                        {activeTab === 'DASHBOARD' && <DashboardTab stats={systemStats} />}
+                        {activeTab === 'DASHBOARD' && <DashboardTab stats={systemStats} onTabChange={setActiveTab} />}
                         {activeTab === 'NEW_VENDORS' && (
                             <TechniciansTab
                                 vendors={vendors.filter(v => !v.isVerified)}
@@ -230,6 +233,9 @@ function AdminPanel() {
                         {activeTab === 'BANNERS' && <BannerManager />}
                         {activeTab === 'ADDONS' && <AddonManager />}
                         {activeTab === 'CATEGORIES' && <CategoryManager />}
+                        {activeTab === 'COMMUNITY' && <CommunityManager />}
+                        {activeTab === 'REWARDS' && <RewardsTab />}
+                        {activeTab === 'MEMBERSHIP' && <MembershipTab />}
                     </div>
                 )}
 
