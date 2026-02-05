@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import {
     LayoutDashboard, Tag, ClipboardList, Users, Wallet,
     X as CloseIcon, Ticket, Percent, Trophy, LayoutGrid,
-    LogOut, Settings, Bell, UserCheck, Users2, Crown
+    LogOut, Settings, Bell, UserCheck, Users2, Crown, Plus
 } from 'lucide-react';
 
 const SidebarItem = ({ name, icon, label, activeTab, setActiveTab, setIsSidebarOpen, count }) => {
