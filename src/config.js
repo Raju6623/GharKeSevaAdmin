@@ -4,12 +4,20 @@ export const API_URL = `${BASE_URL}/api/auth`;
 
 export const getImageUrl = (path) => {
     if (!path) return "https://via.placeholder.com/150";
-    if (path.startsWith('http') || path.startsWith('data:')) return path;
-
-    // Check if it's a 3D icon from public folder
-    if (path.includes('3d-icons')) {
-        return `${window.location.origin}${path.startsWith('/') ? '' : '/'}${path}`;
+    if (typeof path === 'string' && (path.startsWith('http') || path.startsWith('data:'))) {
+        return path;
     }
 
-    return `${BASE_URL}/${path}`;
+    // Check if it's a 3D icon from public folder
+    if (typeof path === 'string' && (path.includes('3d-icons') || path.startsWith('/3d-icons'))) {
+        return path.startsWith('/') ? path : `/${path}`;
+    }
+
+    let cleanPath = path.toString().replace(/\\/g, '/');
+    if (cleanPath.includes('uploads/')) {
+        cleanPath = 'uploads/' + cleanPath.split('uploads/').pop();
+    }
+    if (cleanPath.startsWith('/')) cleanPath = cleanPath.substring(1);
+
+    return `${BASE_URL}/${cleanPath}`;
 };
