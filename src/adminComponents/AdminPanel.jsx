@@ -33,7 +33,7 @@ import { fetchAdminData, verifyVendor, updateAdminService, fetchAdminBanners, fe
 import { updateVendorStatus, fetchAdminServices, deleteAdminService } from '../redux/slices/adminSlice';
 
 // Icons for Stats
-import { Wallet, ClipboardList, UserCheck, TrendingUp } from 'lucide-react';
+import { Wallet, ClipboardList, UserCheck, TrendingUp, IndianRupee } from 'lucide-react';
 import { BASE_URL } from '../config';
 
 const socket = io(BASE_URL);
