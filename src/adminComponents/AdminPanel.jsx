@@ -22,6 +22,7 @@ import CategoryManager from './tabs/CategoryManager';
 import CommunityManager from './tabs/CommunityManager';
 import RewardsTab from './tabs/RewardsTab';
 import MembershipTab from './tabs/MembershipTab';
+import SettlementsTab from './tabs/SettlementsTab';
 
 // Modals
 import VendorDetailsModal from './modals/VendorDetailsModal';
@@ -236,6 +237,7 @@ function AdminPanel() {
                         {activeTab === 'COMMUNITY' && <CommunityManager />}
                         {activeTab === 'REWARDS' && <RewardsTab />}
                         {activeTab === 'MEMBERSHIP' && <MembershipTab />}
+                        {activeTab === 'SETTLEMENTS' && <SettlementsTab />}
                     </div>
                 )}
 

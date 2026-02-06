@@ -48,6 +48,7 @@ const AdminSidebar = ({ activeTab, setActiveTab, isSidebarOpen, setIsSidebarOpen
         { name: 'TECHNICIANS', label: 'Registered Partners', icon: <Users /> },
         { name: 'BOOKINGS', label: 'Bookings', icon: <ClipboardList />, count: notifications.newBookings },
         { name: 'PAYMENTS', label: 'Payments', icon: <Wallet /> },
+        { name: 'SETTLEMENTS', label: 'Settlements', icon: <Wallet /> },
     ];
 
     const ecosystemItems = [
