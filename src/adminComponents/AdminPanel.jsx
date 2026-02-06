@@ -180,7 +180,7 @@ function AdminPanel() {
     };
 
     return (
-        <div className="min-h-screen bg-[#F8FAFC] flex font-sans">
+        <div className="min-h-screen bg-[#F8FAFC] flex font-sans overflow-x-hidden">
             <AdminSidebar
                 activeTab={activeTab}
                 setActiveTab={setActiveTab}

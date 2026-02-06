@@ -147,7 +147,7 @@ const AdminSidebar = ({ activeTab, setActiveTab, isSidebarOpen, setIsSidebarOpen
     return (
         <>
             {/* Desktop Sidebar */}
-            <aside className="w-72 bg-white border-r border-slate-100 p-6 hidden lg:flex flex-col sticky top-0 h-screen">
+            <aside className="fixed inset-y-0 left-0 w-72 bg-white border-r border-slate-100 p-6 hidden lg:flex flex-col h-screen sticky top-0 shrink-0">
                 {sidebarContent(false)}
             </aside>
 
