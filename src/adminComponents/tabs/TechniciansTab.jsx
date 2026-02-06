@@ -62,7 +62,7 @@ const TechniciansTab = ({ vendors, setSelectedVendor, title = "Technician Roster
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
-                            <tr className="bg-slate-50/50">
+                            <tr className="bg-white">
                                 <th className="px-8 py-6 text-[11px] font-bold uppercase tracking-widest text-slate-400 border-b border-slate-100">Partner Details</th>
                                 <th className="px-6 py-6 text-[11px] font-bold uppercase tracking-widest text-slate-400 border-b border-slate-100">Category</th>
                                 <th className="px-6 py-6 text-[11px] font-bold uppercase tracking-widest text-slate-400 border-b border-slate-100">Contact Info</th>
@@ -96,7 +96,7 @@ const TechniciansTab = ({ vendors, setSelectedVendor, title = "Technician Roster
                                         </div>
                                     </td>
                                     <td className="px-6 py-5">
-                                        <span className="bg-primary/5 text-primary text-[10px] font-bold px-3 py-1.5 rounded-lg border border-primary/10 uppercase tracking-wide">
+                                        <span className="bg-white text-primary text-[10px] font-bold px-3 py-1.5 rounded-full border border-primary/20 uppercase tracking-wide">
                                             {vendor.vendorCategory}
                                         </span>
                                     </td>
@@ -118,11 +118,11 @@ const TechniciansTab = ({ vendors, setSelectedVendor, title = "Technician Roster
                                     </td>
                                     <td className="px-6 py-5 text-center">
                                         {vendor.isVerified ? (
-                                            <span className="bg-emerald-50 text-emerald-600 text-[9px] font-bold px-3 py-1.5 rounded-full uppercase tracking-widest border border-emerald-100 inline-block min-w-[100px]">
+                                            <span className="bg-white text-emerald-600 text-[9px] font-bold px-3 py-1.5 rounded-full uppercase tracking-widest border border-emerald-200 inline-block min-w-[100px]">
                                                 Verified
                                             </span>
                                         ) : (
-                                            <span className="bg-amber-50 text-amber-600 text-[9px] font-bold px-3 py-1.5 rounded-full uppercase tracking-widest border border-amber-100 flex items-center justify-center gap-1.5 w-max mx-auto animate-pulse">
+                                            <span className="bg-white text-amber-600 text-[9px] font-bold px-3 py-1.5 rounded-full uppercase tracking-widest border border-amber-200 flex items-center justify-center gap-1.5 w-max mx-auto animate-pulse">
                                                 <Clock size={10} /> Pending
                                             </span>
                                         )}
@@ -131,10 +131,10 @@ const TechniciansTab = ({ vendors, setSelectedVendor, title = "Technician Roster
                                         <div className="flex items-center justify-end gap-2">
                                             <button
                                                 onClick={() => setSelectedVendor(vendor)}
-                                                className={`px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all shadow-sm
+                                                className={`px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all
                                                     ${vendor.isVerified
-                                                        ? 'bg-secondary text-white hover:bg-secondary/90'
-                                                        : 'bg-primary text-white hover:bg-primary-dark shadow-primary/20'
+                                                        ? 'bg-white text-secondary border border-secondary hover:bg-secondary hover:text-white'
+                                                        : 'bg-white text-primary border border-primary hover:bg-primary hover:text-white'
                                                     }`}
                                             >
                                                 {vendor.isVerified ? 'Profile' : 'Verify Now'}

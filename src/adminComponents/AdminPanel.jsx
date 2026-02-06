@@ -82,6 +82,16 @@ function AdminPanel() {
             dispatch(fetchAdminServices(selectedServiceCategory));
         });
 
+        socket.on('admin_financial_update', () => {
+            console.log("💰 Real-time Financial Update Received");
+            dispatch(fetchAdminData());
+        });
+
+        socket.on('new_payout_alert', (data) => {
+            console.log("💸 New Payout Request Received:", data);
+            dispatch(fetchAdminData()); // Refresh stats to show pending payout
+        });
+
         socket.on('banner_update', () => {
             dispatch(fetchAdminBanners());
         });
@@ -94,6 +104,8 @@ function AdminPanel() {
             socket.off('vendor_status_change');
             socket.off('admin_booking_update');
             socket.off('service_update');
+            socket.off('admin_financial_update');
+            socket.off('new_payout_alert');
             socket.off('banner_update');
             socket.off('addon_update');
         };
@@ -128,9 +140,9 @@ function AdminPanel() {
 
     const systemStats = [
         { label: 'Total Revenue', value: adminData?.totalRevenue || '0', icon: <Wallet className="text-primary" />, color: 'bg-primary/5' },
-        { label: 'Total Bookings', value: adminData?.activeBookingsCount?.toString() || '0', icon: <ClipboardList className="text-blue-500" />, color: 'bg-blue-50' },
-        { label: 'Online Techs', value: onlineVendors.length.toString(), icon: <UserCheck className="text-indigo-500" />, color: 'bg-indigo-50' },
-        { label: 'Satisfaction', value: '4.8/5', icon: <TrendingUp className="text-orange-500" />, color: 'bg-orange-50' },
+        { label: 'Platform Profit', value: adminData?.platformProfit || '0', icon: <TrendingUp className="text-emerald-500" />, color: 'bg-emerald-50' },
+        { label: 'Vendor Wallets', value: adminData?.vendorWalletNet || '0', icon: <IndianRupee className="text-indigo-500" />, color: 'bg-indigo-50' },
+        { label: 'Online Techs', value: onlineVendors.length.toString(), icon: <UserCheck className="text-blue-500" />, color: 'bg-blue-50' },
     ];
 
     const handleDeleteVendorAction = async (vendorId) => {
@@ -237,7 +249,7 @@ function AdminPanel() {
                         {activeTab === 'COMMUNITY' && <CommunityManager />}
                         {activeTab === 'REWARDS' && <RewardsTab />}
                         {activeTab === 'MEMBERSHIP' && <MembershipTab />}
-                        {activeTab === 'SETTLEMENTS' && <SettlementsTab />}
+                        {activeTab === 'SETTLEMENTS' && <SettlementsTab vendors={vendors} />}
                     </div>
                 )}
 

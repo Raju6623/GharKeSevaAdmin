@@ -1,7 +1,22 @@
-import React from 'react';
-import { Clock, ExternalLink, Calendar, Hash, MoreVertical } from 'lucide-react';
+import React, { useState } from 'react';
+import { Clock, ExternalLink, Calendar, Hash, MoreVertical, Search, Filter } from 'lucide-react';
 
 const BookingsTab = ({ recentBookings, setSelectedBooking }) => {
+    const [searchTerm, setSearchTerm] = useState('');
+    const [filterStatus, setFilterStatus] = useState('ALL');
+
+    const filteredBookings = recentBookings.filter(job => {
+        const matchesSearch =
+            job.customBookingId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            job.packageName?.toLowerCase().includes(searchTerm.toLowerCase());
+
+        const matchesStatus = filterStatus === 'ALL' || job.bookingStatus === filterStatus;
+
+        return matchesSearch && matchesStatus;
+    });
+
+    const statusOptions = ['ALL', 'Pending', 'Accepted', 'In Progress', 'Completed', 'Cancelled'];
+
     return (
         <div className="space-y-6 animate-in slide-in-from-bottom-2 duration-500">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -9,9 +24,39 @@ const BookingsTab = ({ recentBookings, setSelectedBooking }) => {
                     <h2 className="text-2xl font-bold text-secondary tracking-tight">Service Requests</h2>
                     <p className="text-xs text-slate-500 font-medium">Track and manage your live system bookings</p>
                 </div>
-                <div className="bg-white px-4 py-2.5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-3">
-                    <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
-                    <span className="text-[11px] font-bold text-secondary uppercase tracking-wider">{recentBookings.length} Active Jobs</span>
+                <div className="flex items-center gap-3">
+                    <div className="bg-white px-4 py-2.5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-3">
+                        <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
+                        <span className="text-[11px] font-bold text-secondary uppercase tracking-wider">{filteredBookings.length} Matching Jobs</span>
+                    </div>
+                </div>
+            </div>
+
+            {/* Filters Row */}
+            <div className="flex flex-col md:flex-row gap-4">
+                <div className="flex-1 relative">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                    <input
+                        type="text"
+                        placeholder="Search by Order ID or Service..."
+                        className="w-full pl-12 pr-4 py-3 bg-white border border-slate-100 rounded-2xl text-sm font-medium focus:ring-2 focus:ring-primary/10 outline-none transition-all"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div>
+                <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-2 md:pb-0">
+                    {statusOptions.map(status => (
+                        <button
+                            key={status}
+                            onClick={() => setFilterStatus(status)}
+                            className={`px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all
+                                ${filterStatus === status
+                                    ? 'bg-secondary text-white shadow-lg shadow-secondary/20'
+                                    : 'bg-white text-slate-400 border border-slate-100 hover:border-slate-200'}`}
+                        >
+                            {status}
+                        </button>
+                    ))}
                 </div>
             </div>
 
@@ -21,7 +66,7 @@ const BookingsTab = ({ recentBookings, setSelectedBooking }) => {
                         <thead>
                             <tr className="bg-slate-50/50">
                                 <th className="px-8 py-5 text-[10px] font-bold uppercase tracking-[0.15em] text-slate-400 border-b border-slate-100">Service Info</th>
-                                <th className="px-6 py-5 text-[10px] font-bold uppercase tracking-[0.15em] text-slate-400 border-b border-slate-100">Booking ID</th>
+                                <th className="px-6 py-5 text-[10px] font-bold uppercase tracking-[0.15em] text-slate-400 border-b border-slate-100">Order ID</th>
                                 <th className="px-6 py-5 text-[10px] font-bold uppercase tracking-[0.15em] text-slate-400 border-b border-slate-100">Date</th>
                                 <th className="px-6 py-5 text-[10px] font-bold uppercase tracking-[0.15em] text-slate-400 border-b border-slate-100">Amount</th>
                                 <th className="px-6 py-5 text-[10px] font-bold uppercase tracking-[0.15em] text-slate-400 border-b border-slate-100 text-center">Status</th>
@@ -29,7 +74,7 @@ const BookingsTab = ({ recentBookings, setSelectedBooking }) => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-50">
-                            {recentBookings.map((job) => (
+                            {filteredBookings.map((job) => (
                                 <tr key={job._id} className="hover:bg-slate-50/80 transition-all group">
                                     <td className="px-8 py-4">
                                         <div className="flex items-center gap-4">
@@ -65,8 +110,8 @@ const BookingsTab = ({ recentBookings, setSelectedBooking }) => {
                                     </td>
                                     <td className="px-6 py-4 text-center">
                                         <span className={`px-3 py-1.5 rounded-lg text-[9px] font-bold uppercase tracking-wider inline-block min-w-[90px] ${job.bookingStatus === 'Completed' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' :
-                                                job.bookingStatus === 'Cancelled' ? 'bg-red-50 text-red-600 border border-red-100' :
-                                                    'bg-amber-50 text-amber-600 border border-amber-100'
+                                            job.bookingStatus === 'Cancelled' ? 'bg-red-50 text-red-600 border border-red-100' :
+                                                'bg-amber-50 text-amber-600 border border-amber-100'
                                             }`}>
                                             {job.bookingStatus}
                                         </span>

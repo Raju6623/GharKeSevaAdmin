@@ -1,16 +1,22 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Trash2, Star, Tag, Pencil } from 'lucide-react';
+import { Trash2, Star, Tag, Pencil, Search } from 'lucide-react';
 import EditServiceModal from '../modals/EditServiceModal';
 import { getImageUrl } from '../../config';
 
 const ServicesTab = ({ services, selectedCategory, onCategoryChange, onDeleteService, onUpdateService }) => {
     const [editingService, setEditingService] = useState(null);
+    const [searchTerm, setSearchTerm] = useState('');
 
     const categories = [
         'All Services', 'AC', 'Plumbing', 'Electrician', 'Carpenter',
         'RO', 'Salon', 'HouseMaid', 'Painting', 'Smart Lock', 'Appliances'
     ];
+
+    const filteredServices = (services || []).filter(s =>
+        s.packageName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        s.tag?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     return (
         <div className="space-y-8 animate-in fade-in duration-500">
@@ -21,24 +27,39 @@ const ServicesTab = ({ services, selectedCategory, onCategoryChange, onDeleteSer
                 </Link>
             </div>
 
-            {/* Category Filter */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-4 no-scrollbar -mx-2 px-2">
-                {categories.map((cat) => (
-                    <button
-                        key={cat}
-                        onClick={() => onCategoryChange(cat)}
-                        className={`whitespace-nowrap px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all duration-300 ${selectedCategory === cat
-                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-100 scale-105'
-                            : 'bg-white text-slate-400 border border-slate-100 hover:border-blue-200 hover:text-blue-500'
-                            }`}
-                    >
-                        {cat}
-                    </button>
-                ))}
+            {/* Filters & Search Row */}
+            <div className="flex flex-col lg:flex-row gap-6">
+                {/* Category Filter */}
+                <div className="flex-1 flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar px-1">
+                    {categories.map((cat) => (
+                        <button
+                            key={cat}
+                            onClick={() => onCategoryChange(cat)}
+                            className={`whitespace-nowrap px-5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all duration-300 ${selectedCategory === cat
+                                ? 'bg-blue-600 text-white shadow-lg shadow-blue-100'
+                                : 'bg-white text-slate-400 border border-slate-100 hover:border-blue-200 hover:text-blue-500'
+                                }`}
+                        >
+                            {cat}
+                        </button>
+                    ))}
+                </div>
+
+                {/* Search Bar */}
+                <div className="w-full lg:w-80 relative group">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors" size={18} />
+                    <input
+                        type="text"
+                        placeholder="Search service name..."
+                        className="w-full pl-12 pr-4 py-3 bg-white border border-slate-100 rounded-2xl text-xs font-bold focus:ring-2 focus:ring-blue-500/10 outline-none transition-all shadow-sm"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                {services && services.length > 0 ? services.map(service => (
+                {filteredServices.length > 0 ? filteredServices.map(service => (
                     <div key={service._id} className="bg-white p-5 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-md transition group relative">
                         {/* Badge Tag */}
                         {service.tag && (
