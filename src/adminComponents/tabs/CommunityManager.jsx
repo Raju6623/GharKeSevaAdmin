@@ -94,8 +94,7 @@ const CommunityManager = () => {
 
         if (result.isConfirmed) {
             try {
-                // Assuming there's a delete endpoint or using the same pattern
-                await api.delete(`/admin/community/post/${postId}`);
+                await api.delete(`/community/posts/${postId}`);
                 Swal.fire('Deleted!', 'Post removed successfully.', 'success');
                 fetchPosts();
             } catch (e) {
@@ -347,6 +346,10 @@ const CommunityManager = () => {
                                             <div className="flex flex-col items-center">
                                                 <span className="text-xs font-black text-amber-500">{post.claps || 0}</span>
                                                 <span className="text-[8px] font-black text-slate-300 uppercase">Claps</span>
+                                            </div>
+                                            <div className="flex flex-col items-center">
+                                                <span className="text-xs font-black text-blue-500">{post.comments?.length || 0}</span>
+                                                <span className="text-[8px] font-black text-slate-300 uppercase">Comments</span>
                                             </div>
                                         </div>
                                     </td>
