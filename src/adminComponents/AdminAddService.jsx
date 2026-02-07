@@ -35,7 +35,10 @@ function AdminAddService() {
     // Fetch services for the sidebar when category changes
     useEffect(() => {
         if (serviceType === 'service' || serviceType === 'package') {
-            dispatch(fetchAdminServices(subType || mainCategory));
+            dispatch(fetchAdminServices({
+                category: subType || mainCategory,
+                modelKey: mainCategory
+            }));
         }
     }, [dispatch, mainCategory, subType, serviceType]);
 
@@ -124,7 +127,10 @@ function AdminAddService() {
             const category = subType || mainCategory;
             // Only refresh if the update belongs to the current category being viewed
             if (data.category === category || data.type === 'delete_all') {
-                dispatch(fetchAdminServices(category));
+                dispatch(fetchAdminServices({
+                    category: category,
+                    modelKey: mainCategory
+                }));
             }
         });
 
@@ -139,7 +145,7 @@ function AdminAddService() {
             const res = await axios.delete(`${API_URL}/admin/services/${serviceId}?category=${category}`);
             if (res.data.success) {
                 setMessage({ type: 'success', text: 'Service deleted successfully!' });
-                dispatch(fetchAdminServices(subType || mainCategory));
+                dispatch(fetchAdminServices({ category: subType || mainCategory, modelKey: mainCategory }));
             }
         } catch (error) {
             setMessage({ type: 'error', text: 'Failed to delete service' });
@@ -153,7 +159,7 @@ function AdminAddService() {
             const res = await axios.delete(`${API_URL}/admin/services/all?category=${category}`);
             if (res.data.success) {
                 setMessage({ type: 'success', text: `All ${category} services deleted!` });
-                dispatch(fetchAdminServices(category));
+                dispatch(fetchAdminServices({ category: category, modelKey: mainCategory }));
             }
         } catch (error) {
             setMessage({ type: 'error', text: 'Failed to bulk delete services' });
@@ -281,7 +287,7 @@ function AdminAddService() {
                     setEditingId(null);
                 }
                 // Refresh sidebar
-                dispatch(fetchAdminServices(subType || mainCategory));
+                dispatch(fetchAdminServices({ category: subType || mainCategory, modelKey: mainCategory }));
             }
         } catch (error) {
             setMessage({ type: 'error', text: error.response?.data?.error || "Upload failed" });

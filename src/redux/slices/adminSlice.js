@@ -9,11 +9,23 @@ import axios from 'axios';
 import { API_URL } from '../../config';
 
 // Async Thunk to Fetch All Services (Admin View)
-export const fetchAdminServices = createAsyncThunk('admin/fetchServices', async (category = 'All Services', { rejectWithValue }) => {
+export const fetchAdminServices = createAsyncThunk('admin/fetchServices', async (payload = 'All Services', { rejectWithValue }) => {
     try {
-        const url = category === 'All Services'
-            ? `${API_URL}/services`
-            : `${API_URL}/services?category=${encodeURIComponent(category)}`;
+        let category = 'All Services';
+        let modelKey = '';
+
+        if (typeof payload === 'object') {
+            category = payload.category || 'All Services';
+            modelKey = payload.modelKey || '';
+        } else {
+            category = payload;
+        }
+
+        let url = `${API_URL}/services?category=${encodeURIComponent(category)}`;
+        if (modelKey) {
+            url += `&modelKey=${encodeURIComponent(modelKey)}`;
+        }
+
         const response = await axios.get(url);
         return response.data;
     } catch (error) {
