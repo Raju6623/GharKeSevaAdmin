@@ -255,8 +255,8 @@ function AdminAddService() {
 
         try {
             const url = isEditing
-                ? `http://localhost:3001/api/auth/admin/services/${editingId}`
-                : 'http://localhost:3001/api/auth/admin/services/add';
+                ? `${API_URL}/admin/services/${editingId}`
+                : `${API_URL}/admin/services/add`;
 
             const method = isEditing ? 'put' : 'post';
 
