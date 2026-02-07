@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { ShieldCheck } from 'lucide-react';
+import { ShieldCheck, Eye, EyeOff } from 'lucide-react';
 import { registerAdmin } from '../redux/thunks/authThunk';
 import { clearError } from '../redux/slices/authSlice';
 import Swal from 'sweetalert2';
@@ -17,6 +17,8 @@ function AdminRegister() {
         userEmail: '',
         userPassword: ''
     });
+
+    const [showPassword, setShowPassword] = useState(false);
 
     useEffect(() => {
         dispatch(clearError());
@@ -59,7 +61,7 @@ function AdminRegister() {
 
     return (
         <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-4 font-sans">
-            <div className="w-full max-w-4xl bg-white rounded-3xl shadow-xl shadow-slate-200/50 flex flex-col md:row overflow-hidden border border-slate-100">
+            <div className="w-full max-w-4xl bg-white rounded-3xl shadow-xl shadow-slate-200/50 flex flex-col md:flex-row overflow-hidden border border-slate-100">
 
                 {/* Brand Side */}
                 <div className="w-full md:w-5/12 bg-secondary p-12 text-white flex flex-col justify-between relative overflow-hidden">
@@ -110,15 +112,24 @@ function AdminRegister() {
                         </div>
                         <div>
                             <label className={labelClass}>Password</label>
-                            <input
-                                name="userPassword"
-                                type="password"
-                                value={formData.userPassword}
-                                onChange={handleChange}
-                                placeholder="••••••••"
-                                className={inputClass}
-                                required
-                            />
+                            <div className="relative">
+                                <input
+                                    name="userPassword"
+                                    type={showPassword ? "text" : "password"}
+                                    value={formData.userPassword}
+                                    onChange={handleChange}
+                                    placeholder="••••••••"
+                                    className={inputClass}
+                                    required
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                                >
+                                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                </button>
+                            </div>
                         </div>
 
                         <button
