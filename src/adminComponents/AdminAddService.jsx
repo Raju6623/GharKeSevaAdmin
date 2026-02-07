@@ -314,6 +314,53 @@ function AdminAddService() {
         }
     };
 
+
+
+
+    // Filter Logic to Display Only Relevant Services
+    const filteredServices = services?.filter(service => {
+        // 1. Determine the 'Target Category' based on current selection
+        // This MUST match the logic used in 'handleSubmit' to define 'serviceCategory'
+        const categoryConfig = categoryMapping[mainCategory];
+        let targetCategory = subType; // Default to subType (e.g. Split AC)
+
+        if (categoryConfig) {
+            if (categoryConfig.actions && !Array.isArray(categoryConfig.actions)) {
+                // Complex Categories (Salon, Electrician) -> The 'Action' is the Category in DB
+                targetCategory = serviceAction;
+            } else {
+                // Simple Categories (AC, Appliances, Carpenter)
+                // If SubType is empty (e.g. Carpenter), use Action
+                if (!subType) targetCategory = serviceAction;
+            }
+        }
+
+        // Fallback for safety
+        if (!targetCategory) targetCategory = mainCategory;
+
+        // 2. PRIMARY CHECK: Does the service's category match the Target?
+        if (service.serviceCategory !== targetCategory) {
+            return false;
+        }
+
+        // 3. SECONDARY CHECK: Salon Specific (Gender Isolation)
+        // Because "Hair Cut" category exists for both Men and Women, we must check the Name/Context
+        if (mainCategory === 'Salon' && subType) {
+            const isWomenView = subType.toLowerCase().includes('women');
+            const name = service.packageName?.toLowerCase() || '';
+
+            if (isWomenView) {
+                // In Women view, ensure we don't show Men's services
+                if (name.includes('men') && !name.includes('women')) return false;
+            } else {
+                // In Men view, ensure we don't show Women's services
+                if (name.includes('women')) return false;
+            }
+        }
+
+        return true;
+    });
+
     return (
         <div className="min-h-screen bg-slate-50 p-4 lg:p-12 font-sans">
             <div className="max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
@@ -494,8 +541,8 @@ function AdminAddService() {
                                         </div>
                                     ))}
                                 </div>
-                            ) : services && services.length > 0 ? (
-                                services.map((s) => (
+                            ) : filteredServices && filteredServices.length > 0 ? (
+                                filteredServices.map((s) => (
                                     <div key={s._id} className="flex gap-4 p-3 hover:bg-slate-50 rounded-2xl transition group border border-transparent hover:border-slate-100 cursor-default">
                                         <div className="w-16 h-16 bg-white border border-slate-100 rounded-xl overflow-hidden shrink-0 shadow-sm">
                                             <img
