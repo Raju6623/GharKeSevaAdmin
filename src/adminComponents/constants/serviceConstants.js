@@ -9,9 +9,9 @@ export const categoryMapping = {
         ]
     },
     "Salon": {
-        subTypes: ["Women's Salon", "Men's Salon"],
+        subTypes: ["Salon for Women", "Salon for Men"],
         actions: {
-            "Women's Salon": [
+            "Salon for Women": [
                 { label: "Hair Cut", value: "Hair Cut" },
                 { label: "Facial & Cleanup", value: "Facial & Cleanup" },
                 { label: "Manicure & Pedicure", value: "Manicure" },
@@ -19,7 +19,7 @@ export const categoryMapping = {
                 { label: "Massage", value: "Massage" },
                 { label: "Super saver packages", value: "Super saver packages" }
             ],
-            "Men's Salon": [
+            "Salon for Men": [
                 { label: "Hair Cut", value: "Hair Cut" },
                 { label: "Facial & Cleanup", value: "Facial & Cleanup" },
                 { label: "Massage", value: "Massage" },

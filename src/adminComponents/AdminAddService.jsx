@@ -36,7 +36,7 @@ function AdminAddService() {
     useEffect(() => {
         if (serviceType === 'service' || serviceType === 'package') {
             dispatch(fetchAdminServices({
-                category: subType || mainCategory,
+                category: mainCategory,
                 modelKey: mainCategory
             }));
         }
@@ -124,20 +124,18 @@ function AdminAddService() {
     useEffect(() => {
         socket.on('service_update', (data) => {
             console.log("🔄 [Admin Add] Real-time Service Update:", data);
-            const category = subType || mainCategory;
-            // Only refresh if the update belongs to the current category being viewed
-            if (data.category === category || data.type === 'delete_all') {
-                dispatch(fetchAdminServices({
-                    category: category,
-                    modelKey: mainCategory
-                }));
-            }
+            // Simpler refresh logic: Just refresh if ANY update comes, or filter by mainCategory if possible.
+            // For now, refreshing the current mainCategory view is safest.
+            dispatch(fetchAdminServices({
+                category: mainCategory,
+                modelKey: mainCategory
+            }));
         });
 
         return () => {
             socket.off('service_update');
         };
-    }, [dispatch, subType, mainCategory]);
+    }, [dispatch, mainCategory]);
 
     const handleDelete = async (serviceId, category) => {
         if (!window.confirm('Are you sure you want to delete this service?')) return;
@@ -145,7 +143,7 @@ function AdminAddService() {
             const res = await axios.delete(`${API_URL}/admin/services/${serviceId}?category=${category}`);
             if (res.data.success) {
                 setMessage({ type: 'success', text: 'Service deleted successfully!' });
-                dispatch(fetchAdminServices({ category: subType || mainCategory, modelKey: mainCategory }));
+                dispatch(fetchAdminServices({ category: mainCategory, modelKey: mainCategory }));
             }
         } catch (error) {
             setMessage({ type: 'error', text: 'Failed to delete service' });
@@ -159,7 +157,7 @@ function AdminAddService() {
             const res = await axios.delete(`${API_URL}/admin/services/all?category=${category}`);
             if (res.data.success) {
                 setMessage({ type: 'success', text: `All ${category} services deleted!` });
-                dispatch(fetchAdminServices({ category: category, modelKey: mainCategory }));
+                dispatch(fetchAdminServices({ category: mainCategory, modelKey: mainCategory }));
             }
         } catch (error) {
             setMessage({ type: 'error', text: 'Failed to bulk delete services' });
@@ -219,10 +217,30 @@ function AdminAddService() {
         if (subType && !finalName.toLowerCase().includes(subType.toLowerCase())) {
             finalName = `${subType} ${finalName}`;
         }
-        let finalCategory = subType || mainCategory;
-        if (mainCategory === 'Appliances') {
-            finalCategory = subType;
+        // SMART CATEGORY MAPPING LOGIC
+        const categoryConfig = categoryMapping[mainCategory];
+        let finalCategory = subType;
+
+        if (categoryConfig) {
+            // Case 1: Grouped Actions (e.g. Electrician -> Standard -> Switch & Socket)
+            // The ACTION is the true category.
+            if (categoryConfig.actions && !Array.isArray(categoryConfig.actions)) {
+                finalCategory = serviceAction;
+            }
+            // Case 2: Flat Actions (e.g. AC, Carpenter)
+            else {
+                // If SubType exists (AC -> Split AC), use it.
+                // If SubType is empty (Carpenter, RO), use the Action (Drill & Hang).
+                if (!subType) {
+                    finalCategory = serviceAction;
+                }
+            }
         }
+
+        // Fallback
+        if (!finalCategory) finalCategory = mainCategory;
+
+        // Special override for Appliances/Subtypes if needed, but above logic covers "Appliances -> Washing Machine" (SubType exists)
 
         const data = new FormData();
         data.append('packageName', finalName);
@@ -287,7 +305,7 @@ function AdminAddService() {
                     setEditingId(null);
                 }
                 // Refresh sidebar
-                dispatch(fetchAdminServices({ category: subType || mainCategory, modelKey: mainCategory }));
+                dispatch(fetchAdminServices({ category: mainCategory, modelKey: mainCategory }));
             }
         } catch (error) {
             setMessage({ type: 'error', text: error.response?.data?.error || "Upload failed" });
@@ -447,7 +465,7 @@ function AdminAddService() {
                         <div className="flex items-center justify-between mb-6">
                             <div>
                                 <h3 className="text-lg font-bold text-secondary leading-none tracking-tight">Existing Data</h3>
-                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">In {subType || mainCategory}</p>
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">In {mainCategory}</p>
                             </div>
                             <div className="flex items-center gap-2">
                                 {services && services.length > 0 && (
