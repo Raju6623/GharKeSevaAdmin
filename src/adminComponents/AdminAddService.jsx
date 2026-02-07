@@ -319,44 +319,64 @@ function AdminAddService() {
 
     // Filter Logic to Display Only Relevant Services
     const filteredServices = services?.filter(service => {
-        // 1. Determine the 'Target Category' based on current selection
-        // This MUST match the logic used in 'handleSubmit' to define 'serviceCategory'
+        // 1. Determine the 'Target Category' components
         const categoryConfig = categoryMapping[mainCategory];
-        let targetCategory = subType; // Default to subType (e.g. Split AC)
 
+        // Target Action (Deepest Level)
+        let targetAction = null;
         if (categoryConfig) {
             if (categoryConfig.actions && !Array.isArray(categoryConfig.actions)) {
-                // Complex Categories (Salon, Electrician) -> The 'Action' is the Category in DB
-                targetCategory = serviceAction;
+                // Complex Categories (Salon, Electrician) -> Action is the key
+                targetAction = serviceAction;
             } else {
-                // Simple Categories (AC, Appliances, Carpenter)
-                // If SubType is empty (e.g. Carpenter), use Action
-                if (!subType) targetCategory = serviceAction;
+                // Simple Categories. If no subType, action is key.
+                if (!subType) targetAction = serviceAction;
             }
         }
 
-        // Fallback for safety
-        if (!targetCategory) targetCategory = mainCategory;
+        // Target SubType (Middle Level)
+        const targetSubType = subType;
 
-        // 2. PRIMARY CHECK: Does the service's category match the Target?
-        if (service.serviceCategory !== targetCategory) {
-            return false;
-        }
+        // Target Main (Top Level)
+        const targetMain = mainCategory;
 
-        // 3. SECONDARY CHECK: Salon Specific (Gender Isolation)
-        // Because "Hair Cut" category exists for both Men and Women, we must check the Name/Context
+        const sCat = service.serviceCategory;
+
+        // 2. PRIMARY MATCH: Allow match if service category matches any level of the current selection hierarchy
+        // This handles cases where data was saved with broader or narrower labels
+        const isMatch =
+            (targetAction && sCat === targetAction) ||
+            (targetSubType && sCat === targetSubType) ||
+            (targetMain && sCat === targetMain);
+
+        if (!isMatch) return false;
+
+        // 3. SECONDARY FILTERS (Crucial for Separation)
+
+        // A. SALON: Gender Isolation
         if (mainCategory === 'Salon' && subType) {
             const isWomenView = subType.toLowerCase().includes('women');
             const name = service.packageName?.toLowerCase() || '';
+            const cat = sCat?.toLowerCase() || '';
 
             if (isWomenView) {
-                // In Women view, ensure we don't show Men's services
+                // In Women view: Exclude Men
                 if (name.includes('men') && !name.includes('women')) return false;
+                if (cat.includes('men') && !cat.includes('women')) return false;
             } else {
-                // In Men view, ensure we don't show Women's services
+                // In Men view: Exclude Women
                 if (name.includes('women')) return false;
+                if (cat.includes('women')) return false;
             }
         }
+
+        // B. GENERIC: Enforce SubType Separation if SubCategory exists
+        // If I am in "Split AC", and the item is "Window AC", it shouldn't show (fails primary match).
+        // But if I am in "Split AC", and item is "AC" (matches targetMain), we need to ensure it's not actually "Window AC" in content.
+        // For now, minimizing logic to just Category checks is safest unless specific conflicts arise.
+        // The Primary Match 'OR' logic above naturally separates siblings:
+        // 'Window AC' != 'Split AC' AND 'Window AC' != 'AC' (assuming main is AC). 
+        // Only potential leak is if 'Window AC' service is labeled 'AC', it displays in 'Split AC' view. This is acceptable for legacy data compatibility.
 
         return true;
     });
