@@ -30,12 +30,14 @@ const SettlementsTab = ({ vendors = [] }) => {
     const [selectedRequest, setSelectedRequest] = useState(null);
     const [processingId, setProcessingId] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
+    const [visibleCount, setVisibleCount] = useState(20);
 
     useEffect(() => {
         if (filter !== 'WALLETS') {
             fetchWithdrawals();
         }
-    }, [filter]);
+        setVisibleCount(20);
+    }, [filter, searchTerm]);
 
     const filteredWithdrawals = withdrawals.filter(w =>
         w.vendorId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -190,10 +192,10 @@ const SettlementsTab = ({ vendors = [] }) => {
             </div>
 
             {/* Withdrawal Requests Table or Vendor Wallets */}
-            <div className="bg-white rounded-[2.5rem] border border-slate-100 overflow-hidden shadow-sm">
-                <div className="p-8 border-b border-slate-50 flex items-center justify-between">
+            <div className="overflow-hidden">
+                <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center">
+                        <div className="w-10 h-10 bg-white text-indigo-600 rounded-xl flex items-center justify-center shadow-sm">
                             {filter === 'WALLETS' ? <IndianRupee size={20} /> : <Wallet size={20} />}
                         </div>
                         <h3 className="text-lg font-black text-slate-800 tracking-tight uppercase">
@@ -210,9 +212,9 @@ const SettlementsTab = ({ vendors = [] }) => {
                         <div className="w-10 h-10 border-4 border-indigo-100 border-t-indigo-600 rounded-full animate-spin" />
                     </div>
                 ) : filter === 'WALLETS' ? (
-                    <div className="divide-y divide-slate-50">
-                        {filteredVendors.length > 0 ? filteredVendors.map((vendor) => (
-                            <div key={vendor._id} className="p-6 hover:bg-slate-50/50 transition-colors flex items-center justify-between gap-4">
+                    <div className="space-y-3">
+                        {filteredVendors.length > 0 ? filteredVendors.slice(0, visibleCount).map((vendor) => (
+                            <div key={vendor._id} className="p-6 bg-white rounded-3xl border border-slate-100 hover:border-indigo-100 transition-colors flex items-center justify-between gap-4 shadow-sm">
                                 <div className="flex items-center gap-4">
                                     <div className="w-10 h-10 rounded-xl bg-slate-100 overflow-hidden border border-slate-200">
                                         <img
@@ -241,8 +243,8 @@ const SettlementsTab = ({ vendors = [] }) => {
                         )}
                     </div>
                 ) : filteredWithdrawals.length > 0 ? (
-                    <div className="divide-y divide-slate-50">
-                        {filteredWithdrawals.map((req) => (
+                    <div className="space-y-3">
+                        {filteredWithdrawals.slice(0, visibleCount).map((req) => (
                             <WithdrawalRequestRow
                                 key={req._id}
                                 request={req}
@@ -262,6 +264,19 @@ const SettlementsTab = ({ vendors = [] }) => {
                     </div>
                 )}
             </div>
+
+            {/* View More Button */}
+            {((filter === 'WALLETS' && filteredVendors.length > visibleCount) ||
+                (filter !== 'WALLETS' && filteredWithdrawals.length > visibleCount)) && (
+                    <div className="flex justify-center mt-10">
+                        <button
+                            onClick={() => setVisibleCount(prev => prev + 20)}
+                            className="px-8 py-3 bg-white border-2 border-slate-100 text-slate-600 rounded-2xl text-xs font-black uppercase tracking-[0.2em] hover:bg-slate-50 hover:border-indigo-100 transition-all shadow-sm"
+                        >
+                            View More Results
+                        </button>
+                    </div>
+                )}
 
             {/* Detail Modal */}
             <AnimatePresence>
@@ -304,69 +319,67 @@ const WithdrawalRequestRow = ({ request, onApprove, onViewDetails, isProcessing 
     const StatusIcon = config.icon;
 
     return (
-        <div className="p-6 hover:bg-slate-50/50 transition-colors group">
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-                {/* Left: Vendor Info */}
-                <div className="flex items-start gap-5 flex-1">
-                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 bg-${config.color}-50 text-${config.color}-600`}>
-                        <StatusIcon size={20} />
+        <div className="p-6 bg-white rounded-3xl border border-slate-100 hover:border-indigo-100 transition-all flex flex-col lg:flex-row lg:items-center justify-between gap-6 shadow-sm">
+            {/* Left: Vendor Info */}
+            <div className="flex items-start gap-5 flex-1">
+                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 bg-${config.color}-50 text-${config.color}-600`}>
+                    <StatusIcon size={20} />
+                </div>
+                <div className="min-w-0">
+                    <div className="flex items-center gap-3 mb-2">
+                        <p className="text-sm font-black text-slate-800">Vendor {request.vendorId}</p>
+                        <span className={`px-2 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-${config.color}-100 text-${config.color}-800`}>
+                            {config.label}
+                        </span>
                     </div>
-                    <div className="min-w-0">
-                        <div className="flex items-center gap-3 mb-2">
-                            <p className="text-sm font-black text-slate-800">Vendor {request.vendorId}</p>
-                            <span className={`px-2 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-${config.color}-100 text-${config.color}-800`}>
-                                {config.label}
-                            </span>
-                        </div>
-                        <div className="flex flex-wrap items-center gap-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                            <span>{new Date(request.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
-                            {request.bankDetails?.bankName && (
-                                <>
-                                    <span className="text-slate-200">•</span>
-                                    <span className="text-indigo-500">{request.bankDetails.bankName}</span>
-                                </>
-                            )}
-                            {request.bankDetails?.accountNumber && (
-                                <>
-                                    <span className="text-slate-200">•</span>
-                                    <span>A/C •••• {String(request.bankDetails.accountNumber).slice(-4)}</span>
-                                </>
-                            )}
-                        </div>
+                    <div className="flex flex-wrap items-center gap-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                        <span>{new Date(request.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+                        {request.bankDetails?.bankName && (
+                            <>
+                                <span className="text-slate-200">•</span>
+                                <span className="text-indigo-500">{request.bankDetails.bankName}</span>
+                            </>
+                        )}
+                        {request.bankDetails?.accountNumber && (
+                            <>
+                                <span className="text-slate-200">•</span>
+                                <span>A/C •••• {String(request.bankDetails.accountNumber).slice(-4)}</span>
+                            </>
+                        )}
                     </div>
                 </div>
+            </div>
 
-                {/* Middle: Amount */}
-                <div className="text-left lg:text-right">
-                    <p className="text-2xl font-black text-slate-800 tracking-tight mb-1">₹{request.amount.toLocaleString('en-IN')}</p>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Withdrawal Amount</p>
-                </div>
+            {/* Middle: Amount */}
+            <div className="text-left lg:text-right">
+                <p className="text-2xl font-black text-slate-800 tracking-tight mb-1">₹{request.amount.toLocaleString('en-IN')}</p>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Withdrawal Amount</p>
+            </div>
 
-                {/* Right: Actions */}
-                <div className="flex items-center gap-3">
+            {/* Right: Actions */}
+            <div className="flex items-center gap-3">
+                <button
+                    onClick={() => onViewDetails(request)}
+                    className="p-3 bg-slate-100 text-slate-600 rounded-xl hover:bg-slate-200 transition-colors"
+                    title="View Details"
+                >
+                    <Eye size={18} />
+                </button>
+
+                {request.status === 'PENDING' && (
                     <button
-                        onClick={() => onViewDetails(request)}
-                        className="p-3 bg-slate-100 text-slate-600 rounded-xl hover:bg-slate-200 transition-colors"
-                        title="View Details"
+                        onClick={() => onApprove(request._id)}
+                        disabled={isProcessing}
+                        className="px-6 py-3 bg-emerald-600 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-emerald-700 transition-all disabled:opacity-50 flex items-center gap-2"
                     >
-                        <Eye size={18} />
+                        {isProcessing ? (
+                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        ) : (
+                            <CheckCircle2 size={16} />
+                        )}
+                        Approve
                     </button>
-
-                    {request.status === 'PENDING' && (
-                        <button
-                            onClick={() => onApprove(request._id)}
-                            disabled={isProcessing}
-                            className="px-6 py-3 bg-emerald-600 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-emerald-700 transition-all disabled:opacity-50 flex items-center gap-2"
-                        >
-                            {isProcessing ? (
-                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                            ) : (
-                                <CheckCircle2 size={16} />
-                            )}
-                            Approve
-                        </button>
-                    )}
-                </div>
+                )}
             </div>
         </div>
     );
